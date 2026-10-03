@@ -120,6 +120,11 @@ git clone https://github.com/lyanvalentinmail-prog/Izuku-Bot.git
 cd Izuku-Bot
 ```
 
+> ⚠️ **Importante:** fíjate que entras a la carpeta con `cd Izuku-Bot`.
+> Si ejecutas `npm start` fuera de esa carpeta verás el error
+> `npm error Missing script: "start"`.
+> Comprueba que estás en el sitio correcto con `ls` — debes ver `index.js` y `package.json`.
+
 ### 5️⃣ Instalar las dependencias
 
 ```bash
@@ -628,6 +633,7 @@ Izuku-Bot/
 
 | Problema | Solución |
 |---|---|
+| `npm error Missing script: "start"` | No estás dentro de la carpeta del bot o la rama no tiene el código. Haz `cd Izuku-Bot && ls`: debes ver `package.json`. Si no aparece, mira la nota de abajo 👇 |
 | `npm install` falla en Termux | `pkg install -y python make clang` y vuelve a intentar |
 | `ffmpeg: not found` / stickers no funcionan | `pkg install -y ffmpeg libwebp` |
 | El QR no se ve bien | Pellizca la pantalla para reducir la letra, o usa `npm run code` |
@@ -637,6 +643,19 @@ Izuku-Bot/
 | Las descargas fallan | Las APIs públicas cambian seguido: edita/añade endpoints en `lib/downloader.js` |
 | La IA no responde | Pon tu propia API key en `config.js ▸ apis` |
 | Termux se cierra solo | Ejecuta `termux-wake-lock` y desactiva la optimización de batería de Termux |
+
+### 🔀 ¿Clonaste y la carpeta está casi vacía?
+
+Significa que el código todavía está en otra rama. Descárgala así:
+
+```bash
+cd Izuku-Bot
+git fetch origin
+git checkout arena/01a0ffed-izuku-bot
+ls        # ahora sí debes ver index.js, package.json, plugins/...
+npm install
+npm start
+```
 
 ---
 
