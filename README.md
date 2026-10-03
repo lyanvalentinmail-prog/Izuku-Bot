@@ -68,6 +68,7 @@ WhatsApp  ──▶  index.js (conexión Baileys)
 | 🧠 **IA integrada** | Chat, resúmenes, código y generación de imágenes |
 | 📥 **Descargas** | YouTube, TikTok, Instagram y Facebook |
 | 💰 **Economía completa** | Monedas, banco, tienda, inventario, minería y pesca |
+| 🗡️ **RPG por turnos** | 4 clases, 8 monstruos, jefes, equipo y duelos PvP |
 | 💤 **Sistema AFK** | Avisa automáticamente cuando mencionan a alguien ausente |
 | 👥 **Gestión de grupos** | Kick, promote, antilink, bienvenida, tagall… |
 | 🏷️ **Stickers con metadata** | Pack y autor personalizados, imagen y video |
@@ -312,6 +313,18 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.trivia` | Pregunta de cultura general |
 | `.ruleta <monedas>` | Casino |
 
+### 🗡️ RPG
+| Comando | Descripción |
+|---|---|
+| `.crear <clase>` | Crear personaje: guerrero, mago, arquero o clérigo |
+| `.ficha` | Ver tu ficha (vida, ataque, defensa, equipo) |
+| `.cazar` | Combatir monstruos por XP y monedas (cada 3 min) |
+| `.mazmorra` | Jefe final, desde nivel 5 (cada 1 h) |
+| `.equipar espada` | Equipar arma o armadura |
+| `.curar` | Recuperar vida con vendaje, elixir o pagando |
+| `.duelo @usuario` | Duelo PvP apostando monedas |
+| `.toprpg` | Ranking de aventureros |
+
 ### 💰 Economía
 | Comando | Descripción |
 |---|---|
@@ -329,6 +342,7 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.minar` | Minar minerales (necesita pico) |
 | `.pescar` | Pescar (necesita caña) |
 | `.usar pocion` | Usar un consumible |
+| `.comprar espada` | Equipo RPG: espada, arco, bastón, armadura, escudo |
 
 ### 🔎 Búsqueda
 | Comando | Descripción |
@@ -410,6 +424,55 @@ economy: {
   workMax: 900,       // pago máximo del .work
   robChance: 0.45     // probabilidad de robar con éxito (45 %)
 }
+```
+
+### Cambiar el banner del menú
+
+El `.menu` manda una imagen de cabecera. Puedes usar una URL o un archivo local:
+
+```js
+// Opción 1: una URL
+menuImage: 'https://i.imgur.com/tuimagen.jpg',
+
+// Opción 2: un archivo dentro del proyecto (recomendado, no depende de internet)
+menuImage: './media/banner.jpg',
+```
+
+Para la opción 2 copia tu imagen a la carpeta `media/` del bot:
+
+```bash
+mkdir -p media
+cp /sdcard/Download/mi-banner.jpg media/banner.jpg
+```
+
+### Personalizar el diseño del menú
+
+Todo el estilo vive en `plugins/info/menu.js`:
+
+| Qué cambiar | Dónde |
+|---|---|
+| Emoji, título y descripción de cada categoría | tabla `CATS` |
+| Orden en que salen las categorías | se toma del orden de `CATS` |
+| Consejos aleatorios del pie | lista `TIPS` (usa `{p}` para el prefijo) |
+| Frases del encabezado | lista `FRASES` |
+| Saludo según la hora | función `saludo()` |
+| Marcos y bordes | las plantillas de texto dentro de `run()` |
+
+### Editar el RPG
+
+Está todo en `lib/rpg.js`:
+
+- **`CLASES`** — añade o retoca clases (vida, ataque, defensa).
+- **`MONSTRUOS`** y **`JEFES`** — enemigos con su nivel, estadísticas y recompensas.
+- **`EQUIPO`** — cuánto suma cada arma/armadura (debe existir también en `lib/shop.js` para poder comprarse).
+- **`xpNecesaria()`** — curva de experiencia (`level * 150` por defecto).
+- **`monstruoPara()`** — qué tan rápido escalan los monstruos (`* 0.12` por nivel de diferencia).
+- **`combate()`** — fórmula de daño, críticos y límite de turnos.
+
+Ejemplo, agregar un monstruo:
+
+```js
+{ emoji: '🕷️', name: 'Araña gigante', lvl: 6, hp: 170, atk: 33, def: 15, coins: 750, xp: 110 }
 ```
 
 ### Agregar objetos a la tienda
@@ -616,11 +679,12 @@ Izuku-Bot/
 │   ├── ai.js             # Conexión con los modelos de IA
 │   ├── sticker.js        # Creación de stickers + metadata (pack/autor)
 │   ├── shop.js           # 🛒 Catálogo de la tienda (objetos, precios, rarezas)
+│   ├── rpg.js            # 🗡️ Clases, monstruos, jefes y motor de combate
 │   ├── helpers.js        # Métodos extra del socket (sendFile…)
 │   └── subbot.js         # Sistema de sub-bots
 ├── plugins/              # 🧩 Un archivo = un comando
 │   ├── info/  perfil/  ia/  herramientas/  descargas/
-│   ├── stickers/  juegos/  economia/  busqueda/  grupos/
+│   ├── stickers/  juegos/  rpg/  economia/  busqueda/  grupos/
 │   └── subbots/  owner/
 ├── database/             # database.json (se crea solo)
 ├── sessions/             # Sesión del bot principal (NO la compartas)
