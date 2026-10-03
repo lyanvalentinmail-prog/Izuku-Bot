@@ -17,8 +17,10 @@ export default {
   ownerName: 'Lyan',
   newsletter: 'https://whatsapp.com/channel/0000000000000000000',
 
-  // Imagen que acompaña al menu (url o ruta local)
-  menuImage: 'https://i.imgur.com/0cQy3kE.jpeg',
+  // Imagen que acompaña al menu.
+  // Puede ser una URL o un archivo local dentro del proyecto.
+  // Si el archivo no existe, el menu se envia solo con texto.
+  menuImage: './media/banner.jpg',
 
   // Modos
   self: false,        // true = el bot solo responde al dueño

@@ -1,3 +1,4 @@
+import fs from 'fs'
 import config from '../../config.js'
 import db from '../../lib/database.js'
 import { formatTime, random } from '../../lib/functions.js'
@@ -147,13 +148,14 @@ export default {
     }
 
     try {
-      await sock.sendMessage(m.chat, {
-        image: config.menuImage.startsWith('http')
-          ? { url: config.menuImage }
-          : (await import('fs')).readFileSync(config.menuImage),
-        caption: txt,
-        contextInfo
-      }, { quoted: m })
+      // Acepta una URL o un archivo local (ej: './media/banner.jpg')
+      const esUrl = /^https?:\/\//.test(config.menuImage || '')
+      const imagen = esUrl
+        ? { url: config.menuImage }
+        : fs.existsSync(config.menuImage) ? fs.readFileSync(config.menuImage) : null
+      if (!imagen) throw new Error('sin banner')
+
+      await sock.sendMessage(m.chat, { image: imagen, caption: txt, contextInfo }, { quoted: m })
     } catch {
       // Si la imagen falla, enviamos solo el texto con la tarjeta
       await sock.sendMessage(m.chat, { text: txt, contextInfo }, { quoted: m }).catch(() => m.reply(txt))
