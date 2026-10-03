@@ -236,6 +236,30 @@ npm start
 
 ---
 
+## 🔄 Actualizar el bot
+
+Para bajar los cambios nuevos sin perder tu sesión ni tu base de datos:
+
+```bash
+cd ~/Izuku-Bot
+git pull
+npm install
+npm start
+```
+
+Si `git pull` se queja porque tocaste `config.js`, guarda tus cambios primero:
+
+```bash
+git stash          # guarda tus ediciones
+git pull           # baja lo nuevo
+git stash pop      # devuelve tus ediciones
+```
+
+> Tu sesión (`sessions/`), tus sub-bots (`subbots/`) y la base de datos
+> (`database/database.json`) están en `.gitignore`, así que **nunca se borran** al actualizar.
+
+---
+
 ## 📜 Lista de comandos
 
 El prefijo por defecto es `.` (también sirven `!`, `/` y `#`).
@@ -428,7 +452,11 @@ economy: {
 
 ### Cambiar el banner del menú
 
-El `.menu` manda una imagen de cabecera. Puedes usar una URL o un archivo local:
+**La forma más fácil (desde WhatsApp):** envíale la foto al bot con el texto
+`.setbanner`, o responde a una imagen con `.setbanner`. Se guarda sola en
+`media/banner.jpg` y el menú la usa al instante. _(Solo el dueño puede hacerlo.)_
+
+**A mano:** el `.menu` acepta una URL o un archivo local:
 
 ```js
 // Opción 1: una URL
@@ -655,6 +683,7 @@ Solo funcionan para los números que pusiste en `owner` dentro de `config.js`.
 | `.bc <mensaje>` | Difusión a todos los grupos |
 | `.reload` | Recargar todos los plugins sin reiniciar |
 | `.restart` | Reiniciar el bot |
+| `.setbanner` | Cambiar la imagen del menú (responde a una foto) |
 | `.cleartmp` | Borrar archivos temporales |
 
 > `.setprefix` es temporal (hasta reiniciar). Para que sea permanente edita `config.js`.
