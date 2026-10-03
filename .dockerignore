@@ -1,0 +1,7 @@
+node_modules
+sessions
+subbots
+tmp
+logs
+.git
+*.log

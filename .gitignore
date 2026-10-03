@@ -1,0 +1,10 @@
+node_modules/
+sessions/
+subbots/
+tmp/
+database/database.json
+*.log
+.env
+logs/
+*.tmp
+database/*.antes-*

@@ -1,0 +1,37 @@
+{
+  "name": "izuku-bot",
+  "version": "2.0.0",
+  "description": "Izuku Bot - Bot de WhatsApp multifuncion hecho con Baileys (QR y codigo de 8 digitos)",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "qr": "node index.js --qr",
+    "code": "node index.js --code",
+    "pm2": "pm2 start ecosystem.config.cjs",
+    "docker": "docker compose up -d --build"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "baileys",
+    "izuku",
+    "termux"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "awesome-phonenumber": "^6.11.0",
+    "axios": "^1.7.7",
+    "chalk": "^5.3.0",
+    "file-type": "^19.5.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "node-cache": "^5.1.2",
+    "node-webpmux": "^3.2.1",
+    "pino": "^9.4.0",
+    "qrcode-terminal": "^0.12.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
