@@ -67,7 +67,8 @@ WhatsApp  ──▶  index.js (conexión Baileys)
 | 💾 **Base de datos JSON** | Sin instalar MySQL ni MongoDB, se guarda sola cada 30 s |
 | 🧠 **IA integrada** | Chat, resúmenes, código y generación de imágenes |
 | 📥 **Descargas** | YouTube, TikTok, Instagram y Facebook |
-| 💰 **Economía y niveles** | Monedas, banco, daily, trabajos, robos, top |
+| 💰 **Economía completa** | Monedas, banco, tienda, inventario, minería y pesca |
+| 💤 **Sistema AFK** | Avisa automáticamente cuando mencionan a alguien ausente |
 | 👥 **Gestión de grupos** | Kick, promote, antilink, bienvenida, tagall… |
 | 🏷️ **Stickers con metadata** | Pack y autor personalizados, imagen y video |
 | 🔄 **Auto-reconexión** | Si se cae la conexión, vuelve solo |
@@ -253,6 +254,7 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.perfil` | Ver tu perfil (o el de un @mencionado) |
 | `.nivel` | Nivel y barra de experiencia |
 | `.minombre <nombre>` | Cambiar tu nombre en el bot |
+| `.afk <motivo>` | Marcarte como ausente |
 
 ### 🧠 Inteligencia Artificial
 | Comando | Descripción |
@@ -315,6 +317,13 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.pay @usuario 500` | Transferir |
 | `.dep <n>` / `.ret <n>` | Banco |
 | `.top` | Top 10 más ricos |
+| `.tienda` | Ver los objetos a la venta |
+| `.comprar pico` | Comprar un objeto |
+| `.vender diamante all` | Vender objetos |
+| `.inventario` | Ver tu mochila |
+| `.minar` | Minar minerales (necesita pico) |
+| `.pescar` | Pescar (necesita caña) |
+| `.usar pocion` | Usar un consumible |
 
 ### 🔎 Búsqueda
 | Comando | Descripción |
@@ -337,6 +346,7 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.link` | Enlace de invitación |
 | `.setname` / `.setdesc` | Cambiar nombre o descripción |
 | `.antilink on\|off` | Expulsar a quien mande links de grupos |
+| `.antiflood on\|off` | Advertir/expulsar a quien haga spam |
 | `.welcome on\|off` | Bienvenidas |
 | `.infogrupo` | Información del grupo |
 
@@ -395,6 +405,33 @@ economy: {
   workMax: 900,       // pago máximo del .work
   robChance: 0.45     // probabilidad de robar con éxito (45 %)
 }
+```
+
+### Agregar objetos a la tienda
+
+Abre `lib/shop.js` y añade una entrada al objeto `ITEMS`:
+
+```js
+export const ITEMS = {
+  // ...
+  escudo: {
+    emoji: '🛡️',
+    name: 'Escudo',
+    price: 8000,   // lo que cuesta comprarlo (0 = no se vende en la tienda)
+    sell: 4000,    // lo que te pagan al venderlo
+    type: 'item',  // 'tool' | 'item' | 'consumable'
+    desc: 'Te protege de los robos'
+  }
+}
+```
+
+Aparecerá solo en `.tienda`, `.comprar`, `.vender` e `.inventario`.
+
+Para cambiar las rarezas de la minería o la pesca edita la tabla de pesos en
+`plugins/economia/minar.js` o `pescar.js` (números más altos = más probable):
+
+```js
+const key = roll({ carbon: 50, hierro: 30, oro: 15, diamante: 5 })
 ```
 
 ### Activar la IA con tu propia API key
@@ -573,6 +610,7 @@ Izuku-Bot/
 │   ├── downloader.js     # APIs de descarga (YouTube, TikTok…) ← edítalo si una falla
 │   ├── ai.js             # Conexión con los modelos de IA
 │   ├── sticker.js        # Creación de stickers + metadata (pack/autor)
+│   ├── shop.js           # 🛒 Catálogo de la tienda (objetos, precios, rarezas)
 │   ├── helpers.js        # Métodos extra del socket (sendFile…)
 │   └── subbot.js         # Sistema de sub-bots
 ├── plugins/              # 🧩 Un archivo = un comando

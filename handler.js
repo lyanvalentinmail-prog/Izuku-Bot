@@ -1,9 +1,11 @@
 import config from './config.js'
 import db from './lib/database.js'
 import { plugins } from './lib/loader.js'
+import { formatTime } from './lib/functions.js'
 import { serialize } from './lib/serialize.js'
 
 const cooldown = new Map()
+const flood = new Map()
 
 /** Normaliza un numero a jid */
 const toJid = (n) => `${String(n).replace(/\D/g, '')}@s.whatsapp.net`
@@ -55,6 +57,48 @@ export default async function handler(sock, update) {
         text: `🎉 *¡SUBISTE DE NIVEL!*\n\n@${m.sender.split('@')[0]} ahora es nivel *${user.level}*\n💰 Recompensa: *${user.level * 50}* monedas`,
         mentions: [m.sender]
       }).catch(() => {})
+    }
+
+    // ---- AFK: el usuario vuelve ----
+    if (user.afk) {
+      const tiempo = formatTime(Date.now() - user.afk.time)
+      const motivo = user.afk.reason
+      user.afk = null
+      await m.reply(`👋 *Bienvenido de vuelta!*\n\n📝 Motivo: ${motivo}\n⏱️ Estuviste ausente: *${tiempo}*`)
+    }
+
+    // ---- AFK: alguien menciona a un ausente ----
+    const mencionados = [...m.mentionedJid, m.quoted?.sender].filter(Boolean)
+    for (const jid of mencionados) {
+      const u = db.data.users[jid]
+      if (!u?.afk) continue
+      await sock.sendMessage(m.chat, {
+        text: `💤 @${jid.split('@')[0]} está AFK\n📝 Motivo: ${u.afk.reason}\n⏱️ Desde hace: *${formatTime(Date.now() - u.afk.time)}*`,
+        mentions: [jid]
+      }, { quoted: m })
+    }
+
+    // ---- Antiflood ----
+    if (m.isGroup && chat.antiflood && !isAdmin && !isOwner) {
+      const key = `${m.chat}:${m.sender}`
+      const hist = (flood.get(key) || []).filter((t) => Date.now() - t < 8000)
+      hist.push(Date.now())
+      flood.set(key, hist)
+      if (hist.length > 6) {
+        flood.set(key, [])
+        user.warn++
+        if (user.warn >= 3 && isBotAdmin) {
+          user.warn = 0
+          await sock.sendMessage(m.chat, { text: `🚦 @${m.sender.split('@')[0]} fue expulsado por spam.`, mentions: [m.sender] })
+          await sock.groupParticipantsUpdate(m.chat, [m.sender], 'remove').catch(() => {})
+          return
+        }
+        await sock.sendMessage(m.chat, {
+          text: `🚦 *ANTIFLOOD*\n@${m.sender.split('@')[0]}, estás enviando mensajes muy rápido.\n⚠️ Advertencia *${user.warn}/3*`,
+          mentions: [m.sender]
+        })
+        return
+      }
     }
 
     // Antilink

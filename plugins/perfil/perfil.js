@@ -8,6 +8,9 @@ export default {
     let pp
     try { pp = await sock.profilePictureUrl(target, 'image') } catch {}
 
+    const objetos = Object.values(data.inventory || {}).reduce((a, b) => a + b, 0)
+    const afk = data.afk ? `\n│ 💤 AFK: ${data.afk.reason}` : ''
+
     const caption =
 `╭──「 👤 *PERFIL* 」
 │ 🏷️ Nombre: ${data.name || 'Sin nombre'}
@@ -18,7 +21,8 @@ export default {
 │ ✨ XP: ${data.exp}/${data.level * 100}
 │ 💰 Monedas: ${data.coins}
 │ 🏦 Banco: ${data.bank}
-│ ⚠️ Advertencias: ${data.warn}/3
+│ 🎒 Objetos: ${objetos}
+│ ⚠️ Advertencias: ${data.warn}/3${afk}
 │ 📊 Comandos usados: ${data.commands}
 ╰────────────────`
 
