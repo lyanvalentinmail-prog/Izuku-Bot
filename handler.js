@@ -47,7 +47,15 @@ export default async function handler(sock, update) {
 
     // XP pasiva
     user.exp += 1
-    if (user.exp >= user.level * 100) { user.level++; user.exp = 0 }
+    if (user.exp >= user.level * 100) {
+      user.level++
+      user.exp = 0
+      user.coins += user.level * 50
+      await sock.sendMessage(m.chat, {
+        text: `🎉 *¡SUBISTE DE NIVEL!*\n\n@${m.sender.split('@')[0]} ahora es nivel *${user.level}*\n💰 Recompensa: *${user.level * 50}* monedas`,
+        mentions: [m.sender]
+      }).catch(() => {})
+    }
 
     // Antilink
     if (m.isGroup && chat.antilink && !isAdmin && !isOwner && /chat\.whatsapp\.com\/[0-9A-Za-z]{20,}/.test(m.body)) {

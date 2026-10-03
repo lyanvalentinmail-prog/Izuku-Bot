@@ -12,7 +12,8 @@ const EMOJI = {
   economia: '💰',
   busqueda: '🔎',
   grupos: '👥',
-  subbots: '🤖'
+  subbots: '🤖',
+  owner: '👑'
 }
 
 const TITLE = {
@@ -26,10 +27,11 @@ const TITLE = {
   economia: 'ECONOMÍA',
   busqueda: 'BÚSQUEDA',
   grupos: 'GRUPOS',
-  subbots: 'SUB-BOTS'
+  subbots: 'SUB-BOTS',
+  owner: 'DUEÑO'
 }
 
-const ORDER = ['info', 'perfil', 'ia', 'herramientas', 'descargas', 'stickers', 'juegos', 'economia', 'busqueda', 'grupos', 'subbots']
+const ORDER = ['info', 'perfil', 'ia', 'herramientas', 'descargas', 'stickers', 'juegos', 'economia', 'busqueda', 'grupos', 'subbots', 'owner']
 
 export default {
   command: ['menu', 'help', 'ayuda', 'comandos'],

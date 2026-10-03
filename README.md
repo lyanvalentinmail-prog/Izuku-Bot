@@ -23,8 +23,9 @@ Sistema de **plugins**, **sub-bots**, **economía**, **IA**, **descargas** y muc
 8. [Configuración: cómo cambiar cosas](#️-configuración-cómo-cambiar-cosas)
 9. [Cómo agregar un comando nuevo](#-cómo-agregar-un-comando-nuevo)
 10. [Cómo funcionan los sub-bots](#-cómo-funcionan-los-sub-bots)
-11. [Estructura del proyecto](#-estructura-del-proyecto)
-12. [Solución de problemas](#-solución-de-problemas)
+11. [Comandos del dueño](#-comandos-del-dueño)
+12. [Estructura del proyecto](#-estructura-del-proyecto)
+13. [Solución de problemas](#-solución-de-problemas)
 
 ---
 
@@ -68,6 +69,7 @@ WhatsApp  ──▶  index.js (conexión Baileys)
 | 📥 **Descargas** | YouTube, TikTok, Instagram y Facebook |
 | 💰 **Economía y niveles** | Monedas, banco, daily, trabajos, robos, top |
 | 👥 **Gestión de grupos** | Kick, promote, antilink, bienvenida, tagall… |
+| 🏷️ **Stickers con metadata** | Pack y autor personalizados, imagen y video |
 | 🔄 **Auto-reconexión** | Si se cae la conexión, vuelve solo |
 
 ---
@@ -271,6 +273,8 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.tts es Hola` | Texto a voz (nota de voz) |
 | `.ss <url>` | Captura de una página web |
 | `.toimg` | Sticker ➜ imagen |
+| `.tomp3` | Video/audio ➜ MP3 |
+| `.tovn` | Video/audio ➜ nota de voz |
 
 ### 📥 Descargas
 | Comando | Descripción |
@@ -285,9 +289,10 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | Comando | Descripción |
 |---|---|
 | `.s` | Imagen o video (máx 8 s) ➜ sticker |
+| `.s Pack\|Autor` | Sticker con tu pack y autor personalizados |
 | `.attp <texto>` | Sticker animado de texto |
 | `.emojimix 😂+😭` | Mezclar dos emojis |
-| `.swm` | Reenviar un sticker |
+| `.swm Pack\|Autor` | Cambiar el pack/autor de un sticker existente |
 
 ### 🎮 Juegos
 | Comando | Descripción |
@@ -297,6 +302,7 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.8ball <pregunta>` | Bola mágica |
 | `.ahorcado` / `.letra? a` | Juego del ahorcado |
 | `.math` | Reto matemático contrarreloj |
+| `.trivia` | Pregunta de cultura general |
 | `.ruleta <monedas>` | Casino |
 
 ### 💰 Economía
@@ -530,6 +536,27 @@ Ajusta el límite en `config.js` con `maxSubBots`.
 
 ---
 
+## 👑 Comandos del dueño
+
+Solo funcionan para los números que pusiste en `owner` dentro de `config.js`.
+
+| Comando | Descripción |
+|---|---|
+| `.ban @usuario` / `.unban` | Bloquear o desbloquear a alguien del bot |
+| `.addcoins @usuario 1000` | Regalar monedas |
+| `.delcoins @usuario 500` | Quitar monedas |
+| `.setprefix #` | Cambiar el prefijo al vuelo (`vacio` = sin prefijo) |
+| `.mute` / `.unmute` | Silenciar al bot en el chat actual |
+| `.bc <mensaje>` | Difusión a todos los grupos |
+| `.reload` | Recargar todos los plugins sin reiniciar |
+| `.restart` | Reiniciar el bot |
+| `.cleartmp` | Borrar archivos temporales |
+
+> `.setprefix` es temporal (hasta reiniciar). Para que sea permanente edita `config.js`.
+> `.restart` solo vuelve a encender el bot si lo lanzaste con `./start.sh` o con pm2.
+
+---
+
 ## 📂 Estructura del proyecto
 
 ```
@@ -545,11 +572,13 @@ Izuku-Bot/
 │   ├── functions.js      # Utilidades: stickers, descargas, formatos
 │   ├── downloader.js     # APIs de descarga (YouTube, TikTok…) ← edítalo si una falla
 │   ├── ai.js             # Conexión con los modelos de IA
+│   ├── sticker.js        # Creación de stickers + metadata (pack/autor)
 │   ├── helpers.js        # Métodos extra del socket (sendFile…)
 │   └── subbot.js         # Sistema de sub-bots
 ├── plugins/              # 🧩 Un archivo = un comando
 │   ├── info/  perfil/  ia/  herramientas/  descargas/
-│   └── stickers/  juegos/  economia/  busqueda/  grupos/  subbots/
+│   ├── stickers/  juegos/  economia/  busqueda/  grupos/
+│   └── subbots/  owner/
 ├── database/             # database.json (se crea solo)
 ├── sessions/             # Sesión del bot principal (NO la compartas)
 └── subbots/              # Sesiones de los sub-bots
