@@ -1,4 +1,5 @@
 import config from './config.js'
+import { groupCache } from './lib/cache.js'
 import db from './lib/database.js'
 import { plugins } from './lib/loader.js'
 import { formatTime } from './lib/functions.js'
@@ -39,7 +40,11 @@ export default async function handler(sock, update) {
     let isAdmin = false
     let isBotAdmin = false
     if (m.isGroup) {
-      groupMetadata = await sock.groupMetadata(m.chat).catch(() => null)
+      groupMetadata = groupCache.get(m.chat) || null
+      if (!groupMetadata) {
+        groupMetadata = await sock.groupMetadata(m.chat).catch(() => null)
+        if (groupMetadata) groupCache.set(m.chat, groupMetadata)
+      }
       participants = groupMetadata?.participants || []
       const me = participants.find((p) => p.id.split('@')[0] === sock.user.id.split(':')[0])
       const sd = participants.find((p) => p.id === m.sender)
@@ -152,6 +157,17 @@ export default async function handler(sock, update) {
           user, chat, db, plugins, config
         })
         user.commands++
+
+        // Progreso de las misiones diarias
+        if (user.misiones?.lista) {
+          const alias = { cazar: 'cazar', hunt: 'cazar', aventura: 'cazar', minar: 'minar', mine: 'minar',
+                          pescar: 'pescar', fish: 'pescar', work: 'work', trabajar: 'work', trivia: 'trivia' }
+          const objetivo = alias[command]
+          if (objetivo) {
+            const q = user.misiones.lista.find((x) => x.id === objetivo && !x.cobrada)
+            if (q) q.progreso++
+          }
+        }
       } catch (e) {
         console.error(`[${command}]`, e)
         await m.reply(`❌ Ocurrió un error ejecutando *${command}*\n\n${e.message}`)

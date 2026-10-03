@@ -24,8 +24,10 @@ Sistema de **plugins**, **sub-bots**, **economía**, **IA**, **descargas** y muc
 9. [Cómo agregar un comando nuevo](#-cómo-agregar-un-comando-nuevo)
 10. [Cómo funcionan los sub-bots](#-cómo-funcionan-los-sub-bots)
 11. [Comandos del dueño](#-comandos-del-dueño)
-12. [Estructura del proyecto](#-estructura-del-proyecto)
-13. [Solución de problemas](#-solución-de-problemas)
+12. [Administrar y reiniciar datos](#️-administrar-y-reiniciar-datos)
+13. [Hosting: hacerlo más rápido](#-hosting-hacerlo-más-rápido-y-con-más-espacio)
+14. [Estructura del proyecto](#-estructura-del-proyecto)
+15. [Solución de problemas](#-solución-de-problemas)
 
 ---
 
@@ -85,9 +87,28 @@ WhatsApp  ──▶  index.js (conexión Baileys)
 
 ---
 
+## ⚡ Instalación en 1 solo comando
+
+Abre Termux y pega **esto y nada más**. Instala Node, ffmpeg, descarga el bot,
+instala dependencias, te pide tu número y lo arranca:
+
+```bash
+pkg install -y curl && bash <(curl -fsSL https://raw.githubusercontent.com/lyanvalentinmail-prog/Izuku-Bot/main/install.sh)
+```
+
+> Si `main` todavía no tiene el código, usa la rama de trabajo:
+> ```bash
+> pkg install -y curl && IZUKU_BRANCH=arena/01a0ffed-izuku-bot bash <(curl -fsSL https://raw.githubusercontent.com/lyanvalentinmail-prog/Izuku-Bot/arena/01a0ffed-izuku-bot/install.sh)
+> ```
+
+El mismo comando sirve para **actualizar**: si ya tienes el bot, baja lo nuevo sin
+tocar tu sesión ni tu base de datos.
+
+---
+
 ## 📱 Instalación en Termux (paso a paso)
 
-Copia y pega cada bloque en Termux, uno por uno.
+Si prefieres entender cada paso, hazlo manualmente.
 
 ### 1️⃣ Actualizar Termux
 
@@ -274,6 +295,9 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.runtime` | Tiempo encendido |
 | `.owner` | Contacto del dueño |
 | `.script` | Código fuente |
+| `.categorias` | Lista todas las categorías (también hay botón en el menú) |
+| `.topcomandos` | Usuarios más activos |
+| `.statsgrupo` | Estadísticas del grupo |
 | `.donar` | Apoyar el proyecto |
 
 ### 👤 Perfil
@@ -293,6 +317,9 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.resumir <texto>` | Resumir o explicar un texto |
 | `.codigo <petición>` | Generar o explicar código |
 | `.imagina <descripción>` | Crear una imagen con IA |
+| `.transcribir` | Nota de voz ➜ texto |
+| `.personalidad heroe` | Cambia el carácter de la IA (incluye modo Deku) |
+| `.ia reset` | Borra la memoria de la conversación |
 
 ### 🛠️ Herramientas
 | Comando | Descripción |
@@ -316,6 +343,8 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.tiktok <url>` | TikTok sin marca de agua |
 | `.ig <url>` | Instagram |
 | `.fb <url>` | Facebook |
+| `.twitter <url>` | X / Twitter |
+| `.mediafire <url>` | Archivos de MediaFire |
 
 ### 🎨 Stickers
 | Comando | Descripción |
@@ -325,6 +354,8 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.attp <texto>` | Sticker animado de texto |
 | `.emojimix 😂+😭` | Mezclar dos emojis |
 | `.swm Pack\|Autor` | Cambiar el pack/autor de un sticker existente |
+| `.qc <texto>` | Sticker tipo cita de chat con tu avatar |
+| `.brat <texto>` | Sticker estilo "brat" |
 
 ### 🎮 Juegos
 | Comando | Descripción |
@@ -336,6 +367,85 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.math` | Reto matemático contrarreloj |
 | `.trivia` | Pregunta de cultura general |
 | `.ruleta <monedas>` | Casino |
+| `.adivinanza` | Acertijos clásicos |
+| `.capitales` | Adivina la capital |
+| `.anagrama` | Ordena las letras |
+| `.ttt @usuario` | Tres en raya PvP |
+
+### 🎌 Anime
+| Comando | Descripción |
+|---|---|
+| `.anime <nombre>` | Ficha completa de un anime (MyAnimeList) |
+| `.manga <nombre>` | Ficha de un manga |
+| `.personaje <nombre>` | Info e imagen de un personaje |
+| `.temporada` | Animes que salen esta temporada |
+| `.animequote` | Frase célebre de anime |
+| `.waifu` / `.neko` | Imagen aleatoria de anime (solo endpoints SFW) |
+| `.quirk` | Genera tu Quirk al estilo My Hero Academia |
+| `.heroe` | Tu licencia de héroe profesional |
+
+### 🎭 Diversión
+| Comando | Descripción |
+|---|---|
+| `.chiste` | Un chiste (filtrado, sin contenido subido de tono) |
+| `.meme` | Meme aleatorio apto para todos |
+| `.frase` | Frase motivacional |
+| `.ship @a @b` | Compatibilidad (siempre da el mismo % para la misma pareja) |
+| `.verdadoreto` | Verdad o reto |
+| `.piropo @x` | Un cumplido sano |
+| `.abrazar @x` | Reacciones animadas: abrazar, chocalos, bailar, saludar, acariciar... |
+
+### 📚 Estudio
+| Comando | Descripción |
+|---|---|
+| `.rae <palabra>` | Significado de una palabra |
+| `.sinonimos` / `.antonimos` | Lista de sinónimos o antónimos |
+| `.tarea <pregunta>` | Respuesta explicada paso a paso |
+| `.resolver 2x+5=15` | Resuelve ecuaciones mostrando el proceso |
+| `.ortografia` | Corrige ortografía y gramática |
+| `.elemento oxigeno` | Datos de la tabla periódica |
+
+### 🔐 Técnico
+| Comando | Descripción |
+|---|---|
+| `.base64` / `.debase64` | Codificar y decodificar |
+| `.md5` / `.sha256` / `.hash` | Generar hashes |
+| `.password 20` | Contraseña segura |
+| `.ip 8.8.8.8` | Información de una IP o dominio |
+| `.binario` / `.debinario` | Texto ⇄ binario |
+
+### 📅 Productividad
+| Comando | Descripción |
+|---|---|
+| `.encuesta Pregunta \| A \| B` | Encuesta **nativa** de WhatsApp |
+| `.recordatorio 10m sacar la basura` | Te avisa pasado el tiempo |
+| `.nota add <texto>` | Notas personales (ver / borrar) |
+| `.temporizador 60` | Cuenta atrás que se edita sola |
+
+### 🖼️ Imagen
+| Comando | Descripción |
+|---|---|
+| `.pixelar` `.blur` `.espejo` `.invertir` | Filtros con ffmpeg (sin APIs) |
+| `.bn` `.sepia` `.brillo` `.circulo` | Más filtros |
+| `.quitarfondo` | Elimina el fondo de una foto |
+
+### 🤝 Social
+| Comando | Descripción |
+|---|---|
+| `.clan crear <nombre>` | Crear clan (5000 monedas) |
+| `.clan unirse / lista / salir` | Gestión del clan |
+| `.clan guerra <clan>` | Guerra de clanes usando el motor RPG |
+| `.casarse @x` / `.divorciarse` | Matrimonios |
+| `.pareja` | Ver con quién está casado alguien |
+| `.rep @x` / `.toprep` | Reputación cada 12 h |
+| `.regalar @x diamante 2` | Regalar objetos |
+
+### 🌍 Internacional
+| Comando | Descripción |
+|---|---|
+| `.hora <ciudad>` | Hora local en cualquier ciudad |
+| `.divisa 100 usd uyu` | Conversor de monedas |
+| `.pais Uruguay` | Datos y bandera de un país |
 
 ### 🗡️ RPG
 | Comando | Descripción |
@@ -348,6 +458,9 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.curar` | Recuperar vida con vendaje, elixir o pagando |
 | `.duelo @usuario` | Duelo PvP apostando monedas |
 | `.toprpg` | Ranking de aventureros |
+| `.forjar arma` | Mejora tu equipo hasta +5 con minerales |
+| `.mascota adoptar lobo` | Mascota que pelea contigo |
+| `.misiones` | 3 misiones diarias con recompensas |
 
 ### 💰 Economía
 | Comando | Descripción |
@@ -367,6 +480,8 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.pescar` | Pescar (necesita caña) |
 | `.usar pocion` | Usar un consumible |
 | `.comprar espada` | Equipo RPG: espada, arco, bastón, armadura, escudo |
+| `.loteria 27` | Elige número del 1 al 50, premio x30 |
+| `.cofre` | Cofre misterioso cada 2 h |
 
 ### 🔎 Búsqueda
 | Comando | Descripción |
@@ -392,6 +507,12 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.antiflood on\|off` | Advertir/expulsar a quien haga spam |
 | `.welcome on\|off` | Bienvenidas |
 | `.infogrupo` | Información del grupo |
+| `.warn @x` / `.unwarn @x` | Advertencias (3 = expulsión) |
+| `.antifake on 52 598` | Solo permite ciertos prefijos de país |
+| `.setwelcome <texto>` | Bienvenida personalizada con variables |
+| `.admins` | Lista de administradores |
+| `.delete` | Borra un mensaje del bot |
+| `.setppgrupo` | Cambia la foto del grupo |
 
 ### 🤖 Sub-Bots
 | Comando | Descripción |
@@ -484,7 +605,17 @@ Todo el estilo vive en `plugins/info/menu.js`:
 | Consejos aleatorios del pie | lista `TIPS` (usa `{p}` para el prefijo) |
 | Frases del encabezado | lista `FRASES` |
 | Saludo según la hora | función `saludo()` |
+| Botones del menú | array `botones` dentro de `run()` |
 | Marcos y bordes | las plantillas de texto dentro de `run()` |
+
+### El botón de categorías
+
+El `.menu` se envía con botones (**📂 Ver categorías**, **ℹ️ Info del bot**, **👑 Creador**).
+Si el WhatsApp del usuario no soporta botones, el bot **cae automáticamente a texto**
+mostrando los comandos equivalentes, así nunca se pierde el mensaje.
+
+También funciona escribiendo `.categorias`, que lista las categorías con su número
+de comandos y el atajo `.menu <categoría>` de cada una.
 
 ### Editar el RPG
 
@@ -684,10 +815,139 @@ Solo funcionan para los números que pusiste en `owner` dentro de `config.js`.
 | `.reload` | Recargar todos los plugins sin reiniciar |
 | `.restart` | Reiniciar el bot |
 | `.setbanner` | Cambiar la imagen del menú (responde a una foto) |
+| `.setppbot` | Cambiar la foto de perfil del bot |
+| `.db` | Panel de administración de datos |
+| `.backup` / `.restore` | Descargar y restaurar la base de datos |
+| `.reset` | Reiniciar datos (con confirmación) |
 | `.cleartmp` | Borrar archivos temporales |
 
 > `.setprefix` es temporal (hasta reiniciar). Para que sea permanente edita `config.js`.
 > `.restart` solo vuelve a encender el bot si lo lanzaste con `./start.sh` o con pm2.
+
+---
+
+## 🗄️ Administrar y reiniciar datos
+
+Todo esto es **solo para el dueño** y está en el menú, categoría 👑 *Dueño*.
+
+### Panel de datos — `.db`
+
+Te muestra de un vistazo: peso del archivo, RAM usada, usuarios totales,
+registrados, con personaje RPG, baneados, monedas en circulación, chats y sub-bots.
+
+| Acción | Qué hace |
+|---|---|
+| `.db` | Abre el panel con todas las estadísticas |
+| `.db guardar` | Fuerza el guardado a disco |
+| `.db recargar` | Vuelve a leer el archivo desde el disco |
+| `.db compactar [días]` | Borra usuarios fantasma (sin registro ni progreso) |
+| `.db user @usuario` | Muestra el registro completo en JSON |
+| `.db set @usuario coins 5000` | Edita cualquier campo al vuelo |
+| `.db top` | Top 15 por monedas |
+
+### Copias de seguridad
+
+```
+.backup     → el bot te envía el database.json como documento
+.restore    → responde a ese archivo y lo restaura
+```
+
+Antes de restaurar guarda la base actual como `database.json.antes-de-restaurar`,
+así que **nunca pierdes nada por error**.
+
+### Reiniciar datos — `.reset`
+
+Pide **confirmación obligatoria** (hay que repetir el comando en 60 segundos) y
+siempre deja una copia previa en `database.json.antes-del-reset`.
+
+| Comando | Qué borra |
+|---|---|
+| `.reset todo` | Usuarios, chats y ajustes: la base queda vacía |
+| `.reset usuarios` | Todos los usuarios |
+| `.reset economia` | Monedas, banco e inventarios (todos vuelven a 500) |
+| `.reset rpg` | Todos los personajes RPG |
+| `.reset niveles` | Niveles y experiencia a cero |
+| `.reset chats` | Configuración de todos los chats |
+| `.reset usuario @x` | Solo esa persona |
+
+---
+
+## 🚀 Hosting: hacerlo más rápido y con más espacio
+
+### Optimizaciones que ya trae el bot
+
+| Mejora | Efecto |
+|---|---|
+| **Caché de grupos** (`lib/cache.js`) | Antes pedía la info del grupo a WhatsApp en *cada* mensaje. Ahora se guarda 5 min y se invalida sola al cambiar el grupo. Es la mejora que más se nota en grupos grandes |
+| **Caché de APIs** | Búsquedas de anime, países, etc. se reutilizan 10 min |
+| **Guardado inteligente** | La base solo se escribe si algo cambió, y de forma atómica (un corte de luz no la corrompe) |
+| **Sin historial** | `syncFullHistory: false` evita descargar meses de chats al vincular |
+| **Limpieza automática** | Los temporales se borran solos cada 30 min |
+| **`.db compactar`** | Elimina usuarios fantasma para que el JSON no crezca sin control |
+
+### ¿Dónde alojarlo?
+
+| Opción | Velocidad | Espacio | Coste | Para quién |
+|---|---|---|---|---|
+| 📱 **Termux** | Media | La del móvil | Gratis | Probar y uso personal |
+| 🖥️ **VPS** (Contabo, Hetzner, Oracle Free) | **Alta** | 50-200 GB | 0-5 €/mes | **Lo recomendado** |
+| 🐳 **Docker** en VPS | Alta | Según VPS | — | Si quieres despliegues limpios |
+| ☁️ Railway / Render / Fly.io | Media | Poca y efímera | Gratis limitado | Pruebas (ojo: borran la sesión al redesplegar) |
+
+> ⚠️ Evita los hosts gratuitos tipo Heroku/Render para producción: reinician el
+> contenedor y **pierdes la sesión de WhatsApp**, teniendo que re-vincular.
+> Oracle Cloud tiene una capa gratuita de verdad (4 vCPU / 24 GB RAM ARM) perfecta para esto.
+
+### Montarlo en un VPS con pm2 (recomendado)
+
+```bash
+# 1. Dependencias
+sudo apt update && sudo apt install -y nodejs npm git ffmpeg webp
+
+# 2. El bot
+git clone https://github.com/lyanvalentinmail-prog/Izuku-Bot.git
+cd Izuku-Bot && npm install
+
+# 3. Vincular una primera vez
+npm run code
+
+# 4. Dejarlo para siempre con pm2
+npm i -g pm2
+pm2 start ecosystem.config.cjs
+pm2 save && pm2 startup     # arranca solo al reiniciar el servidor
+pm2 logs izuku-bot          # ver la consola
+pm2 monit                   # ver CPU y RAM en vivo
+```
+
+El archivo `ecosystem.config.cjs` ya está configurado: se reinicia solo si se cae,
+se reinicia si pasa de 600 MB de RAM y guarda los logs en `logs/`.
+
+### Con Docker
+
+```bash
+docker compose up -d --build     # construir y arrancar
+docker compose logs -f           # ver la consola (y el QR)
+docker attach izuku-bot          # para escribir el código de vinculación
+docker compose restart           # reiniciar
+```
+
+Los volúmenes de `docker-compose.yml` mantienen `sessions/`, `subbots/`,
+`database/` y `media/` fuera del contenedor, así que **actualizar la imagen no
+borra tu sesión**.
+
+### Trucos extra de rendimiento
+
+```bash
+# Más memoria para Node si tu servidor va sobrado
+NODE_OPTIONS=--max-old-space-size=1024 npm start
+
+# Limpiar temporales y compactar la base de vez en cuando
+.cleartmp     y     .db compactar 30
+```
+
+- Baja `maxSubBots` en `config.js` si vas justo de RAM: **cada sub-bot es una conexión completa**.
+- Si un grupo te satura, usa `.mute` en ese chat.
+- Pon `autoRead: false` y `antiCall: true` para ahorrar trabajo innecesario.
 
 ---
 
@@ -709,12 +969,18 @@ Izuku-Bot/
 │   ├── sticker.js        # Creación de stickers + metadata (pack/autor)
 │   ├── shop.js           # 🛒 Catálogo de la tienda (objetos, precios, rarezas)
 │   ├── rpg.js            # 🗡️ Clases, monstruos, jefes y motor de combate
+│   ├── cache.js          # ⚡ Cachés de grupos y de APIs (rendimiento)
 │   ├── helpers.js        # Métodos extra del socket (sendFile…)
 │   └── subbot.js         # Sistema de sub-bots
 ├── plugins/              # 🧩 Un archivo = un comando
 │   ├── info/  perfil/  ia/  herramientas/  descargas/
 │   ├── stickers/  juegos/  rpg/  economia/  busqueda/  grupos/
-│   └── subbots/  owner/
+│   ├── anime/  diversion/  estudio/  tecnico/  productividad/
+│   └── imagen/  social/  internacional/  subbots/  owner/
+├── install.sh            # ⚡ Instalador de 1 comando
+├── ecosystem.config.cjs  # Configuración de pm2
+├── Dockerfile            # Imagen Docker
+├── docker-compose.yml    # Despliegue con volúmenes persistentes
 ├── database/             # database.json (se crea solo)
 ├── sessions/             # Sesión del bot principal (NO la compartas)
 └── subbots/              # Sesiones de los sub-bots

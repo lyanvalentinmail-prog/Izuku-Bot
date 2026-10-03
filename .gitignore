@@ -5,3 +5,6 @@ tmp/
 database/database.json
 *.log
 .env
+logs/
+*.tmp
+database/*.antes-*

@@ -1,7 +1,7 @@
 import { CLASES, crearPersonaje } from '../../lib/rpg.js'
 
 export default {
-  command: ['crear', 'personaje', 'clase'],
+  command: ['crear', 'miperson', 'clase'],
   category: 'rpg',
   desc: 'Crea tu personaje y elige clase',
   register: true,

@@ -1,7 +1,7 @@
 import config from '../../config.js'
 import { formatTime } from '../../lib/functions.js'
 export default {
-  command: ['daily', 'diario', 'cofre'],
+  command: ['daily', 'diario', 'recompensa'],
   category: 'economia',
   desc: 'Reclama tu recompensa diaria',
   register: true,

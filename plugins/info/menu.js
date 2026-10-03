@@ -9,7 +9,7 @@ import { subBots } from '../../lib/subbot.js'
 //  cambiar emojis, titulos u orden de categorias.
 // ===============================================
 
-const CATS = {
+export const CATS = {
   info:         { emoji: 'ℹ️', title: 'INFORMACIÓN',           sub: 'Datos del bot' },
   perfil:       { emoji: '👤', title: 'PERFIL',                 sub: 'Tu cuenta y nivel' },
   ia:           { emoji: '🧠', title: 'INTELIGENCIA ARTIFICIAL', sub: 'Chat e imágenes con IA' },
@@ -18,6 +18,14 @@ const CATS = {
   stickers:     { emoji: '🎨', title: 'STICKERS',               sub: 'Crea tus figuritas' },
   juegos:       { emoji: '🎮', title: 'JUEGOS',                 sub: 'Diversión rápida' },
   rpg:          { emoji: '🗡️', title: 'RPG',                    sub: 'Aventura, combate y niveles' },
+  anime:        { emoji: '🎌', title: 'ANIME',                  sub: 'Fichas, frases y Quirks' },
+  diversion:    { emoji: '🎭', title: 'DIVERSIÓN',              sub: 'Memes, chistes y reacciones' },
+  estudio:      { emoji: '📚', title: 'ESTUDIO',                sub: 'Ayuda para la escuela' },
+  tecnico:      { emoji: '🔐', title: 'TÉCNICO',                sub: 'Hash, base64, redes' },
+  productividad:{ emoji: '📅', title: 'PRODUCTIVIDAD',          sub: 'Encuestas, notas y recordatorios' },
+  imagen:       { emoji: '🖼️', title: 'IMAGEN',                 sub: 'Editar y mejorar fotos' },
+  social:       { emoji: '🤝', title: 'SOCIAL',                 sub: 'Clanes, parejas y reputación' },
+  internacional:{ emoji: '🌍', title: 'INTERNACIONAL',          sub: 'Horas, divisas y países' },
   economia:     { emoji: '💰', title: 'ECONOMÍA',               sub: 'Monedas, tienda e inventario' },
   busqueda:     { emoji: '🔎', title: 'BÚSQUEDA',               sub: 'Encuentra lo que sea' },
   grupos:       { emoji: '👥', title: 'GRUPOS',                 sub: 'Administración' },
@@ -56,6 +64,19 @@ function saludo() {
   return { txt: 'Buenas noches', emoji: '🌃' }
 }
 
+/** Parte un texto largo por lineas, sin cortar ninguna a la mitad */
+function partir(texto, max) {
+  const lineas = texto.split('\n')
+  const trozos = []
+  let actual = ''
+  for (const l of lineas) {
+    if ((actual + l).length > max) { trozos.push(actual); actual = '' }
+    actual += l + '\n'
+  }
+  if (actual.trim()) trozos.push(actual)
+  return trozos
+}
+
 export default {
   command: ['menu', 'help', 'ayuda', 'comandos'],
   category: 'info',
@@ -70,8 +91,13 @@ export default {
       ;(cats[c] = cats[c] || []).push(p)
     }
 
-    const filtro = text?.toLowerCase().trim()
+    let filtro = text?.toLowerCase().trim()
     const keys = [...ORDER.filter((k) => cats[k]), ...Object.keys(cats).filter((k) => !ORDER.includes(k))]
+
+    // .menu todo -> lista completa  |  .menu -> vista compacta  |  .menu <cat> -> esa categoria
+    const verTodo = ['todo', 'all', 'completo'].includes(filtro)
+    if (verTodo) filtro = null
+    const compacto = !filtro && !verTodo
 
     // Si piden una categoria que no existe
     if (filtro && !cats[filtro]) {
@@ -88,8 +114,15 @@ export default {
     const rpg = user.rpg ? `🗡️ Nv.${user.rpg.level}` : '🗡️ sin personaje'
 
     // ---------- Cabecera ----------
-    let txt =
-`╭━━━〔 ${s.emoji} *${config.botName.toUpperCase()}* 〕━━━⬣
+    let txt = compacto
+      // Vista compacta: cabe como pie de foto, asi se ve el banner
+      ? `╭━━〔 ${s.emoji} *${config.botName.toUpperCase()}* 〕━━⬣
+┃ ${s.txt}, *${nombre}*
+┃ 🏅 Nv.${user.level} ${barra} · 💰 ${user.coins}
+┃ ⏱️ ${formatTime(process.uptime() * 1000)} · 📂 ${plugins.size} cmd · 🔣 ${usedPrefix || 'sin prefijo'}
+╰━━━━━━━━━━━━━━━⬣
+`
+      : `╭━━━〔 ${s.emoji} *${config.botName.toUpperCase()}* 〕━━━⬣
 ┃ ${s.txt}, *${nombre}* ${s.emoji}
 ┃ ${random(FRASES)}
 ╰━━━━━━━━━━━━━━━━━⬣
@@ -110,27 +143,44 @@ export default {
 `
 
     // ---------- Categorias ----------
-    for (const key of keys) {
-      if (filtro && key !== filtro) continue
-      const c = CATS[key] || { emoji: '📁', title: key.toUpperCase(), sub: '' }
-      const lista = cats[key].sort((a, b) => a.command[0].localeCompare(b.command[0]))
-
-      txt += `\n╭──〔 ${c.emoji} *${c.title}* 〕 _${lista.length}_\n`
-      if (c.sub) txt += `│ _${c.sub}_\n│\n`
-      for (const p of lista) {
-        txt += `│ ✦ ${usedPrefix}${p.command[0]}\n`
-        if (p.desc) txt += `│   ◦ _${p.desc}_\n`
+    if (compacto) {
+      // Vista rapida: una linea por categoria
+      txt += `\n╭──〔 📂 *CATEGORÍAS* 〕\n`
+      for (const key of keys) {
+        const c = CATS[key] || { emoji: '📁', title: key.toUpperCase() }
+        txt += `│ ${c.emoji} ${c.title} _(${cats[key].length})_\n`
       }
       txt += '╰────────────────⬣\n'
+    } else {
+      for (const key of keys) {
+        if (filtro && key !== filtro) continue
+        const c = CATS[key] || { emoji: '📁', title: key.toUpperCase(), sub: '' }
+        const lista = cats[key].sort((a, b) => a.command[0].localeCompare(b.command[0]))
+
+        txt += `\n╭──〔 ${c.emoji} *${c.title}* 〕 _${lista.length}_\n`
+        if (c.sub) txt += `│ _${c.sub}_\n│\n`
+        for (const p of lista) {
+          txt += `│ ✦ ${usedPrefix}${p.command[0]}\n`
+          if (p.desc) txt += `│   ◦ _${p.desc}_\n`
+        }
+        txt += '╰────────────────⬣\n'
+      }
     }
 
     // ---------- Pie ----------
-    txt +=
-`\n╭──〔 💡 *CONSEJO* 〕
+    txt += compacto
+      ? `\n📜 *${usedPrefix}menu todo* — los ${plugins.size} comandos
+📖 *${usedPrefix}menu <categoría>* — ej: ${usedPrefix}menu rpg
+💡 ${random(TIPS).replace(/\{p\}/g, usedPrefix)}
+
+   ⋆｡°✩ ${config.botName} ✩°｡⋆`
+      : `\n╭──〔 💡 *CONSEJO* 〕
 │ ${random(TIPS).replace(/\{p\}/g, usedPrefix)}
 ╰────────────────⬣
 
-📖 *${usedPrefix}menu <categoría>* para filtrar
+📂 *${usedPrefix}categorias* — lista de categorías
+📜 *${usedPrefix}menu todo* — todos los comandos
+📖 *${usedPrefix}menu <categoría>* — filtrar
 👑 Creador: *${config.ownerName}* — *${usedPrefix}owner*
 
       ⋆｡°✩ ${config.botName} ✩°｡⋆`
@@ -147,17 +197,41 @@ export default {
       }
     }
 
+    // Acepta una URL o un archivo local (ej: './media/banner.jpg')
+    let imagen = null
     try {
-      // Acepta una URL o un archivo local (ej: './media/banner.jpg')
       const esUrl = /^https?:\/\//.test(config.menuImage || '')
-      const imagen = esUrl
+      imagen = esUrl
         ? { url: config.menuImage }
         : fs.existsSync(config.menuImage) ? fs.readFileSync(config.menuImage) : null
-      if (!imagen) throw new Error('sin banner')
+    } catch {}
 
-      await sock.sendMessage(m.chat, { image: imagen, caption: txt, contextInfo }, { quoted: m })
+    const botones = [
+      { id: `${usedPrefix}categorias`, texto: '📂 Ver categorías' },
+      { id: `${usedPrefix}infobot`, texto: 'ℹ️ Info del bot' },
+      { id: `${usedPrefix}owner`, texto: '👑 Creador' }
+    ]
+
+    // WhatsApp recorta los pies de foto largos: si el texto no cabe,
+    // lo mandamos como mensajes de texto troceados.
+    const LIMITE = 1024
+    if (txt.length > LIMITE) {
+      const trozos = partir(txt, 3500)
+      for (let i = 0; i < trozos.length; i++) {
+        const esUltimo = i === trozos.length - 1
+        const pie = trozos.length > 1 ? `\n\n_— parte ${i + 1}/${trozos.length} —_` : ''
+        if (esUltimo) {
+          await sock.sendButtons(m.chat, trozos[i] + pie, `${config.botName} • ${plugins.size} comandos`, botones, m, { contextInfo })
+        } else {
+          await sock.sendMessage(m.chat, { text: trozos[i] + pie }, { quoted: m })
+        }
+      }
+      return
+    }
+
+    try {
+      await sock.sendButtons(m.chat, txt, `${config.botName} • ${plugins.size} comandos`, botones, m, { image: imagen, contextInfo })
     } catch {
-      // Si la imagen falla, enviamos solo el texto con la tarjeta
       await sock.sendMessage(m.chat, { text: txt, contextInfo }, { quoted: m }).catch(() => m.reply(txt))
     }
   }
