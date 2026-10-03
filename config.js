@@ -8,7 +8,7 @@ export default {
   botName: 'Izuku Bot',
 
   // Numero del dueño (sin +, sin espacios). Ej: '521234567890'
-  owner: ['5212345678901'],
+  owner: ['59896719709'],
 
   // Prefijos aceptados. Pon prefix: [''] para que funcione sin prefijo.
   prefix: ['.', '!', '/', '#'],
