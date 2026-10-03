@@ -610,12 +610,27 @@ Todo el estilo vive en `plugins/info/menu.js`:
 
 ### El botón de categorías
 
-El `.menu` se envía con botones (**📂 Ver categorías**, **ℹ️ Info del bot**, **👑 Creador**).
-Si el WhatsApp del usuario no soporta botones, el bot **cae automáticamente a texto**
-mostrando los comandos equivalentes, así nunca se pierde el mensaje.
+Al final del `.menu` aparecen los atajos rápidos:
+
+```
+▢ 📂 Ver categorías  →  .categorias
+▢ ℹ️ Info del bot    →  .infobot
+▢ 👑 Creador         →  .owner
+```
+
+WhatsApp dejó de mostrar los botones clásicos en casi todas las versiones, así que
+por defecto el menú se manda como **mensaje normal** y siempre se ve bien.
+Si quieres probar los botones nativos, en `config.js`:
+
+```js
+buttons: true,   // por defecto false
+```
 
 También funciona escribiendo `.categorias`, que lista las categorías con su número
 de comandos y el atajo `.menu <categoría>` de cada una.
+
+> El menú **nunca** se envía como "foto de una sola vez": se manda como imagen
+> normal, así puedes volver a abrirlo cuando quieras.
 
 ### Editar el RPG
 

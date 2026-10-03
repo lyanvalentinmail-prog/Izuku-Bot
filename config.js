@@ -28,6 +28,11 @@ export default {
   autoRead: false,    // marcar mensajes como leidos
   antiCall: true,     // rechazar llamadas automaticamente
 
+  // Botones nativos de WhatsApp en el menu.
+  // Casi ningun WhatsApp actual los muestra, por eso viene en false:
+  // asi el menu se envia como mensaje normal y SIEMPRE se ve.
+  buttons: false,
+
   // Limite de sub-bots simultaneos
   maxSubBots: 20,
 
