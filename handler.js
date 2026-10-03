@@ -64,6 +64,29 @@ export default async function handler(sock, update) {
       }).catch(() => {})
     }
 
+    // ---- Auto-revelar los "ver una sola vez" ----
+    if (chat.autoReveal && !m.fromMe) {
+      const crudo = raw.message
+      const envoltorio = crudo.viewOnceMessageV2 || crudo.viewOnceMessageV2Extension || crudo.viewOnceMessage
+      const interno = envoltorio?.message
+      const esVV = interno || crudo.imageMessage?.viewOnce || crudo.videoMessage?.viewOnce
+      if (esVV) {
+        try {
+          const contenido = interno || crudo
+          const tipo = Object.keys(contenido).find((k) => ['imageMessage', 'videoMessage', 'audioMessage'].includes(k))
+          if (tipo) {
+            const { downloadMedia } = await import('./lib/serialize.js')
+            const buffer = await downloadMedia(contenido)
+            const pie = `👁️ *AUTO-REVELADO*\n_@${m.sender.split('@')[0]} lo envió como "ver una sola vez"_`
+            const base = { mentions: [m.sender] }
+            if (tipo === 'imageMessage') await sock.sendMessage(m.chat, { image: buffer, caption: pie, ...base })
+            else if (tipo === 'videoMessage') await sock.sendMessage(m.chat, { video: buffer, caption: pie, ...base })
+            else await sock.sendMessage(m.chat, { audio: buffer, mimetype: 'audio/mpeg', ptt: true, ...base })
+          }
+        } catch {}
+      }
+    }
+
     // ---- AFK: el usuario vuelve ----
     if (user.afk) {
       const tiempo = formatTime(Date.now() - user.afk.time)
@@ -157,6 +180,8 @@ export default async function handler(sock, update) {
           user, chat, db, plugins, config
         })
         user.commands++
+        user.cmdStats = user.cmdStats || {}
+        user.cmdStats[plugin.command[0]] = (user.cmdStats[plugin.command[0]] || 0) + 1
 
         // Progreso de las misiones diarias
         if (user.misiones?.lista) {

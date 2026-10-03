@@ -334,6 +334,19 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.toimg` | Sticker ➜ imagen |
 | `.tomp3` | Video/audio ➜ MP3 |
 | `.tovn` | Video/audio ➜ nota de voz |
+| `.reveal` | Revela una foto/video/audio de "una sola vez" |
+| `.tourl` | Sube una imagen/video/archivo y te da el enlace |
+| `.unidades 10 km a millas` | Convertir unidades (longitud, peso, temperatura…) |
+| `.imc 70 1.75` | Índice de masa corporal |
+| `.edad 15/04/1999` | Tu edad exacta |
+| `.diasentre 01/01/2026 25/12/2026` | Días entre dos fechas |
+| `.morse <texto>` | Texto ⇄ código morse |
+| `.mayus` / `.minus` / `.invertirtexto` / `.contar` | Utilidades de texto |
+| `.decidir a, b, c` | Elige una opción al azar |
+| `.random 1 100` | Número aleatorio |
+| `.caraocruz` | Lanza una moneda |
+| `.sorteo` | Sortea entre los miembros del grupo |
+| `.wame <número>` | Crea un enlace de WhatsApp |
 
 ### 📥 Descargas
 | Comando | Descripción |
@@ -491,6 +504,17 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.google <consulta>` | Buscar en la web |
 | `.imagen <texto>` | Buscar imágenes |
 | `.letra artista - canción` | Letras de canciones |
+| `.libro <título>` | Ficha de un libro (Google Books) |
+| `.receta <plato>` | Receta de cocina con ingredientes y pasos |
+| `.gif <texto>` | Buscar un GIF |
+
+### 📰 Actualidad
+| Comando | Descripción |
+|---|---|
+| `.noticias` | Titulares del momento (`.noticias tecnología` para filtrar) |
+| `.cripto` | Top de criptomonedas; `.cripto btc` para el detalle |
+| `.horoscopo aries` | Tu horóscopo del día |
+| `.dolar` / `.divisa 100 usd eur` | Cotizaciones |
 
 ### 👥 Grupos *(requieren ser admin)*
 | Comando | Descripción |
@@ -509,6 +533,8 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 | `.infogrupo` | Información del grupo |
 | `.warn @x` / `.unwarn @x` | Advertencias (3 = expulsión) |
 | `.antifake on 52 598` | Solo permite ciertos prefijos de país |
+| `.autoreveal on\|off` | Revela automáticamente las fotos de "una sola vez" |
+| `.setreglas <texto>` / `.reglas` | Definir y mostrar las reglas del grupo |
 | `.setwelcome <texto>` | Bienvenida personalizada con variables |
 | `.admins` | Lista de administradores |
 | `.delete` | Borra un mensaje del bot |
@@ -631,6 +657,21 @@ de comandos y el atajo `.menu <categoría>` de cada una.
 
 > El menú **nunca** se envía como "foto de una sola vez": se manda como imagen
 > normal, así puedes volver a abrirlo cuando quieras.
+
+### Revelar fotos de "una sola vez"
+
+Izuku puede abrir las fotos, videos y notas de voz enviadas en modo **"ver una sola vez"**.
+
+**Manual:** responde al mensaje con `.reveal` (también vale `.vv`, `.ver` o `.revelar`) y el bot
+te lo reenvía como un mensaje normal, que ya no se borra.
+
+**Automático:** un admin puede activar `.autoreveal on` en el grupo. A partir de ahí, cada vez
+que alguien mande algo de una sola vez, el bot lo publicará abierto al instante. Se guarda en
+el campo `autoReveal` del chat, así que cada grupo decide por su cuenta. Para apagarlo:
+`.autoreveal off`.
+
+> ⚠️ Úsalo con cabeza: en algunos grupos revelar mensajes privados puede molestar. Por eso el
+> automático viene **apagado** por defecto y solo lo pueden encender los administradores.
 
 ### Editar el RPG
 
