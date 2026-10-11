@@ -3,7 +3,10 @@ import path from 'path'
 import db from '../../lib/database.js'
 import { formatSize } from '../../lib/functions.js'
 
-const FILE = path.join(process.cwd(), 'database', 'database.json')
+import { DATABASE_FILE } from '../../lib/paths.js'
+import { applySavedSettings } from '../../lib/config.js'
+
+const FILE = DATABASE_FILE
 
 export default {
   command: ['backup', 'copia', 'restore', 'restaurar'],
@@ -27,6 +30,7 @@ export default {
       fs.copyFileSync(FILE, `${FILE}.antes-de-restaurar`)
       db.data = { users: {}, chats: {}, settings: {}, subbots: {}, ...data }
       db.save(true)
+      applySavedSettings() // los ajustes del panel que traía el backup se aplican al instante
 
       return m.reply(
 `✅ *BASE DE DATOS RESTAURADA*

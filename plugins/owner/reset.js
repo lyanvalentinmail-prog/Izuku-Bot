@@ -1,8 +1,11 @@
 import fs from 'fs'
 import path from 'path'
 import db from '../../lib/database.js'
+import { applySavedSettings } from '../../lib/config.js'
 
-const FILE = path.join(process.cwd(), 'database', 'database.json')
+import { DATABASE_FILE } from '../../lib/paths.js'
+
+const FILE = DATABASE_FILE
 const pendientes = new Map()   // confirmaciones pendientes
 
 const OPCIONES = {
@@ -71,7 +74,9 @@ Afecta a: *${cuantos}*
     switch (que) {
       case 'todo':
         db.data = { users: {}, chats: {}, settings: {}, subbots: {} }
-        detalle = 'Base de datos completamente vacía.'
+        // Los ajustes del panel vuelven a los valores de config.js al instante
+        applySavedSettings()
+        detalle = 'Base de datos completamente vacía (los ajustes del panel volvieron a config.js).'
         break
       case 'usuarios': {
         const n = Object.keys(db.data.users).length

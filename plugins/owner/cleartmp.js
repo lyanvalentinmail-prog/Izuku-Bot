@@ -1,13 +1,14 @@
 import fs from 'fs'
 import path from 'path'
 import { formatSize } from '../../lib/functions.js'
+import { TEMP_DIR } from '../../lib/paths.js'
 export default {
   command: ['cleartmp', 'limpiar'],
   category: 'owner',
   desc: 'Borra los archivos temporales',
   owner: true,
   async run({ m }) {
-    const dir = path.join(process.cwd(), 'tmp')
+    const dir = TEMP_DIR
     if (!fs.existsSync(dir)) return m.reply('✅ No hay nada que limpiar.')
     let total = 0, count = 0
     for (const f of fs.readdirSync(dir)) {

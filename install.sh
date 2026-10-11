@@ -7,7 +7,7 @@
 set -e
 
 REPO="https://github.com/lyanvalentinmail-prog/Izuku-Bot.git"
-RAMA="${IZUKU_BRANCH:-arena/01a0ffed-izuku-bot}"
+RAMA="${IZUKU_BRANCH:-main}"
 DIR="$HOME/Izuku-Bot"
 
 V='\033[0;32m'; A='\033[1;33m'; C='\033[0;36m'; R='\033[0;31m'; N='\033[0m'
@@ -98,6 +98,10 @@ echo -e "
   Arrancar: ${C}cd ~/Izuku-Bot && npm start${N}
   Con QR:   ${C}npm run qr${N}
   Con código 8 dígitos: ${C}npm run code${N}
+
+  ${V}🌐 Panel web:${N} al arrancar abre ${C}http://localhost:3000${N}
+     Ahí puedes vincular con QR o código, cambiar el nombre,
+     el prefijo, el banner y ver los 174 comandos.
 "
 echo -ne "${A}¿Arrancar el bot ahora? [S/n]: ${N}"
 read -r RESP </dev/tty || RESP="s"

@@ -3,6 +3,9 @@ sessions/
 subbots/
 tmp/
 database/database.json
+database/panel.key
+media/banner.jpg
+
 *.log
 .env
 logs/

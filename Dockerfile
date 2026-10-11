@@ -18,4 +18,9 @@ VOLUME ["/app/sessions", "/app/subbots", "/app/database", "/app/media"]
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=512
 
+# Panel web: se abre en el puerto 3000 (o el que diga PORT)
+ENV PANEL_ENABLED=true
+ENV PORT=3000
+EXPOSE 3000
+
 CMD ["node", "index.js"]
