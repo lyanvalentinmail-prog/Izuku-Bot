@@ -1,0 +1,19 @@
+services:
+  izuku-bot:
+    build: .
+    container_name: izuku-bot
+    restart: unless-stopped
+    stdin_open: true      # necesario para escribir el numero del pairing code
+    tty: true
+    environment:
+      - TZ=America/Montevideo
+    volumes:
+      - ./sessions:/app/sessions
+      - ./subbots:/app/subbots
+      - ./database:/app/database
+      - ./media:/app/media
+      - ./config.js:/app/config.js
+    deploy:
+      resources:
+        limits:
+          memory: 1G

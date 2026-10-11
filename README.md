@@ -1,1 +1,1086 @@
-# Izuku-Bot
+<div align="center">
+
+# 🤖 Izuku Bot
+
+**Bot de WhatsApp multifunción hecho con Node.js + [Baileys](https://github.com/WhiskeySockets/Baileys)**
+
+Vinculación por **código QR** y por **código de 8 dígitos (pairing code)**
+Sistema de **plugins**, **sub-bots**, **economía**, **IA**, **descargas** y mucho más.
+
+</div>
+
+---
+
+## 📑 Índice
+
+1. [¿Qué es Izuku Bot?](#-qué-es-izuku-bot)
+2. [Características](#-características)
+3. [Requisitos](#-requisitos)
+4. [Instalación en Termux (paso a paso)](#-instalación-en-termux-paso-a-paso)
+5. [Vincular el bot (QR o código de 8 dígitos)](#-vincular-el-bot)
+6. [Mantener el bot encendido](#-mantener-el-bot-encendido)
+7. [Lista de comandos por categoría](#-lista-de-comandos)
+8. [Configuración: cómo cambiar cosas](#️-configuración-cómo-cambiar-cosas)
+9. [Cómo agregar un comando nuevo](#-cómo-agregar-un-comando-nuevo)
+10. [Cómo funcionan los sub-bots](#-cómo-funcionan-los-sub-bots)
+11. [Comandos del dueño](#-comandos-del-dueño)
+12. [Administrar y reiniciar datos](#️-administrar-y-reiniciar-datos)
+13. [Hosting: hacerlo más rápido](#-hosting-hacerlo-más-rápido-y-con-más-espacio)
+14. [Estructura del proyecto](#-estructura-del-proyecto)
+15. [Solución de problemas](#-solución-de-problemas)
+
+---
+
+## 🌟 ¿Qué es Izuku Bot?
+
+**Izuku Bot** es un bot de WhatsApp que se conecta a tu cuenta como un *dispositivo vinculado*
+(igual que WhatsApp Web), usando la librería **Baileys**. No necesitas emuladores ni la API
+oficial de WhatsApp Business: funciona en una computadora o directamente en tu **celular Android
+con Termux**.
+
+Cuando alguien escribe un comando (por ejemplo `.menu`), el bot lee el mensaje, busca el
+**plugin** correspondiente dentro de la carpeta `plugins/` y ejecuta su función. Así de simple:
+**un archivo = un comando**. Eso hace que agregar o quitar funciones sea muy fácil.
+
+El flujo interno es:
+
+```
+WhatsApp  ──▶  index.js (conexión Baileys)
+                   │
+                   ▼
+              handler.js  (permisos, prefijo, anti-spam, antilink, XP)
+                   │
+                   ▼
+              plugins/<categoría>/<comando>.js   ◀── aquí vive cada comando
+                   │
+                   ▼
+              database/database.json  (usuarios, economía, ajustes del chat)
+```
+
+---
+
+## ✨ Características
+
+| | |
+|---|---|
+| 🔗 **Doble vinculación** | Código QR **y** código de 8 dígitos |
+| 🧩 **Sistema de plugins** | Un archivo por comando, con *recarga en caliente* (no hay que reiniciar) |
+| 🤖 **Sub-bots (JadiBot)** | Otras personas pueden volverse bots usando tu código |
+| 💾 **Base de datos JSON** | Sin instalar MySQL ni MongoDB, se guarda sola cada 30 s |
+| 🧠 **IA integrada** | Chat, resúmenes, código y generación de imágenes |
+| 📥 **Descargas** | YouTube, TikTok, Instagram y Facebook |
+| 💰 **Economía completa** | Monedas, banco, tienda, inventario, minería y pesca |
+| 🗡️ **RPG por turnos** | 4 clases, 8 monstruos, jefes, equipo y duelos PvP |
+| 💤 **Sistema AFK** | Avisa automáticamente cuando mencionan a alguien ausente |
+| 👥 **Gestión de grupos** | Kick, promote, antilink, bienvenida, tagall… |
+| 🏷️ **Stickers con metadata** | Pack y autor personalizados, imagen y video |
+| 🔄 **Auto-reconexión** | Si se cae la conexión, vuelve solo |
+
+---
+
+## 📋 Requisitos
+
+- **Android 7+** con [Termux](https://f-droid.org/packages/com.termux/) (instálalo desde **F-Droid**, la versión de Play Store está desactualizada).
+- **Node.js 20 o superior**.
+- **~1 GB** de espacio libre y conexión a internet estable.
+- Un **número de WhatsApp** (se recomienda uno secundario).
+
+---
+
+## ⚡ Instalación en 1 solo comando
+
+Abre Termux y pega **esto y nada más**. Instala Node, ffmpeg, descarga el bot,
+instala dependencias, te pide tu número y lo arranca:
+
+```bash
+pkg install -y curl && bash <(curl -fsSL https://raw.githubusercontent.com/lyanvalentinmail-prog/Izuku-Bot/main/install.sh)
+```
+
+> Si `main` todavía no tiene el código, usa la rama de trabajo:
+> ```bash
+> pkg install -y curl && IZUKU_BRANCH=arena/01a0ffed-izuku-bot bash <(curl -fsSL https://raw.githubusercontent.com/lyanvalentinmail-prog/Izuku-Bot/arena/01a0ffed-izuku-bot/install.sh)
+> ```
+
+El mismo comando sirve para **actualizar**: si ya tienes el bot, baja lo nuevo sin
+tocar tu sesión ni tu base de datos.
+
+---
+
+## 📱 Instalación en Termux (paso a paso)
+
+Si prefieres entender cada paso, hazlo manualmente.
+
+### 1️⃣ Actualizar Termux
+
+```bash
+pkg update -y && pkg upgrade -y
+```
+
+> Si pregunta algo, pulsa `Y` y Enter.
+
+### 2️⃣ Instalar las herramientas necesarias
+
+```bash
+pkg install -y nodejs-lts git ffmpeg libwebp python
+```
+
+- `nodejs-lts` → ejecuta el bot
+- `git` → descarga el proyecto
+- `ffmpeg` y `libwebp` → necesarios para los **stickers** y audios
+- `python` → lo piden algunas dependencias al compilarse
+
+### 3️⃣ Dar permiso de almacenamiento (opcional pero recomendado)
+
+```bash
+termux-setup-storage
+```
+
+### 4️⃣ Descargar Izuku Bot
+
+```bash
+git clone https://github.com/lyanvalentinmail-prog/Izuku-Bot.git
+cd Izuku-Bot
+```
+
+> ⚠️ **Importante:** fíjate que entras a la carpeta con `cd Izuku-Bot`.
+> Si ejecutas `npm start` fuera de esa carpeta verás el error
+> `npm error Missing script: "start"`.
+> Comprueba que estás en el sitio correcto con `ls` — debes ver `index.js` y `package.json`.
+
+### 5️⃣ Instalar las dependencias
+
+```bash
+npm install
+```
+
+> Tarda unos minutos la primera vez. Si falla, mira [Solución de problemas](#-solución-de-problemas).
+
+### 6️⃣ Configurar tu número de dueño
+
+```bash
+nano config.js
+```
+
+Cambia la línea de `owner` por tu número **con código de país, sin `+` ni espacios**:
+
+```js
+owner: ['5212345678901'],
+```
+
+Guarda con **Ctrl + X**, luego **Y**, luego **Enter**.
+
+### 7️⃣ Encender el bot
+
+```bash
+npm start
+```
+
+¡Listo! Ahora pasa a la vinculación 👇
+
+---
+
+## 🔗 Vincular el bot
+
+Al arrancar por primera vez, el bot te pregunta:
+
+```
+¿Cómo quieres vincular tu WhatsApp?
+
+  1. Código QR
+  2. Código de 8 dígitos (pairing code)
+
+Elige 1 o 2:
+```
+
+### Opción A — Código QR
+
+```bash
+npm run qr
+```
+
+1. Aparecerá un QR en la pantalla de Termux.
+2. En tu teléfono: **WhatsApp ▸ Ajustes ▸ Dispositivos vinculados ▸ Vincular un dispositivo**.
+3. Escanea el QR.
+
+> 💡 Si el QR se ve cortado, reduce el tamaño de letra de Termux pellizcando la pantalla.
+
+### Opción B — Código de 8 dígitos (recomendado en Termux)
+
+```bash
+npm run code
+```
+
+1. Te pedirá tu número: escríbelo con código de país, **sin `+`** → `5212345678901`
+2. Verás algo como:
+
+```
+🔗 TU CÓDIGO DE VINCULACIÓN: ABCD-1234
+```
+
+3. En tu teléfono: **WhatsApp ▸ Ajustes ▸ Dispositivos vinculados ▸ Vincular con número de teléfono**.
+4. Escribe el código. ¡Conectado!
+
+También puedes pasar el número directo para no escribirlo cada vez:
+
+```bash
+node index.js --code 5212345678901
+```
+
+> La sesión queda guardada en la carpeta `sessions/`. La próxima vez solo ejecuta `npm start`
+> y entrará solo. Si quieres cambiar de número, borra esa carpeta: `rm -rf sessions`.
+
+---
+
+## 🔋 Mantener el bot encendido
+
+**Evita que Android mate Termux:**
+
+```bash
+termux-wake-lock
+```
+
+**Reinicio automático si se cae** (incluido en el proyecto):
+
+```bash
+./start.sh
+```
+
+**Dejarlo corriendo en segundo plano** con `screen`:
+
+```bash
+pkg install -y screen
+screen -S izuku
+npm start
+# Para salir sin apagarlo: Ctrl + A, luego D
+# Para volver:             screen -r izuku
+```
+
+---
+
+## 🔄 Actualizar el bot
+
+Para bajar los cambios nuevos sin perder tu sesión ni tu base de datos:
+
+```bash
+cd ~/Izuku-Bot
+git pull
+npm install
+npm start
+```
+
+Si `git pull` se queja porque tocaste `config.js`, guarda tus cambios primero:
+
+```bash
+git stash          # guarda tus ediciones
+git pull           # baja lo nuevo
+git stash pop      # devuelve tus ediciones
+```
+
+> Tu sesión (`sessions/`), tus sub-bots (`subbots/`) y la base de datos
+> (`database/database.json`) están en `.gitignore`, así que **nunca se borran** al actualizar.
+
+---
+
+## 📜 Lista de comandos
+
+El prefijo por defecto es `.` (también sirven `!`, `/` y `#`).
+Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
+
+### ℹ️ Información
+| Comando | Descripción |
+|---|---|
+| `.menu` | Muestra todos los comandos |
+| `.ping` | Velocidad de respuesta |
+| `.infobot` | Datos del bot y del servidor |
+| `.runtime` | Tiempo encendido |
+| `.owner` | Contacto del dueño |
+| `.script` | Código fuente |
+| `.categorias` | Lista todas las categorías (también hay botón en el menú) |
+| `.topcomandos` | Usuarios más activos |
+| `.statsgrupo` | Estadísticas del grupo |
+| `.donar` | Apoyar el proyecto |
+
+### 👤 Perfil
+| Comando | Descripción |
+|---|---|
+| `.reg nombre.edad` | Registrarte (regala 1000 monedas) |
+| `.unreg` | Borrar tu registro |
+| `.perfil` | Ver tu perfil (o el de un @mencionado) |
+| `.nivel` | Nivel y barra de experiencia |
+| `.minombre <nombre>` | Cambiar tu nombre en el bot |
+| `.afk <motivo>` | Marcarte como ausente |
+
+### 🧠 Inteligencia Artificial
+| Comando | Descripción |
+|---|---|
+| `.ia <pregunta>` | Conversar con la IA |
+| `.resumir <texto>` | Resumir o explicar un texto |
+| `.codigo <petición>` | Generar o explicar código |
+| `.imagina <descripción>` | Crear una imagen con IA |
+| `.transcribir` | Nota de voz ➜ texto |
+| `.personalidad heroe` | Cambia el carácter de la IA (incluye modo Deku) |
+| `.ia reset` | Borra la memoria de la conversación |
+
+### 🛠️ Herramientas
+| Comando | Descripción |
+|---|---|
+| `.traducir en Hola` | Traducir a cualquier idioma |
+| `.qr <texto>` | Generar un código QR |
+| `.calc 5*(3+2)` | Calculadora |
+| `.acortar <url>` | Acortar enlaces |
+| `.clima <ciudad>` | Clima actual |
+| `.tts es Hola` | Texto a voz (nota de voz) |
+| `.ss <url>` | Captura de una página web |
+| `.toimg` | Sticker ➜ imagen |
+| `.tomp3` | Video/audio ➜ MP3 |
+| `.tovn` | Video/audio ➜ nota de voz |
+| `.reveal` | Revela una foto/video/audio de "una sola vez" |
+| `.tourl` | Sube una imagen/video/archivo y te da el enlace |
+| `.unidades 10 km a millas` | Convertir unidades (longitud, peso, temperatura…) |
+| `.imc 70 1.75` | Índice de masa corporal |
+| `.edad 15/04/1999` | Tu edad exacta |
+| `.diasentre 01/01/2026 25/12/2026` | Días entre dos fechas |
+| `.morse <texto>` | Texto ⇄ código morse |
+| `.mayus` / `.minus` / `.invertirtexto` / `.contar` | Utilidades de texto |
+| `.decidir a, b, c` | Elige una opción al azar |
+| `.random 1 100` | Número aleatorio |
+| `.caraocruz` | Lanza una moneda |
+| `.sorteo` | Sortea entre los miembros del grupo |
+| `.wame <número>` | Crea un enlace de WhatsApp |
+
+### 📥 Descargas
+| Comando | Descripción |
+|---|---|
+| `.play <canción>` | Audio de YouTube |
+| `.playvid <nombre>` | Video de YouTube |
+| `.tiktok <url>` | TikTok sin marca de agua |
+| `.ig <url>` | Instagram |
+| `.fb <url>` | Facebook |
+| `.twitter <url>` | X / Twitter |
+| `.mediafire <url>` | Archivos de MediaFire |
+
+### 🎨 Stickers
+| Comando | Descripción |
+|---|---|
+| `.s` | Imagen o video (máx 8 s) ➜ sticker |
+| `.s Pack\|Autor` | Sticker con tu pack y autor personalizados |
+| `.attp <texto>` | Sticker animado de texto |
+| `.emojimix 😂+😭` | Mezclar dos emojis |
+| `.swm Pack\|Autor` | Cambiar el pack/autor de un sticker existente |
+| `.qc <texto>` | Sticker tipo cita de chat con tu avatar |
+| `.brat <texto>` | Sticker estilo "brat" |
+
+### 🎮 Juegos
+| Comando | Descripción |
+|---|---|
+| `.ppt piedra` | Piedra, papel o tijera |
+| `.dado [apuesta]` | Lanzar un dado |
+| `.8ball <pregunta>` | Bola mágica |
+| `.ahorcado` / `.letra? a` | Juego del ahorcado |
+| `.math` | Reto matemático contrarreloj |
+| `.trivia` | Pregunta de cultura general |
+| `.ruleta <monedas>` | Casino |
+| `.adivinanza` | Acertijos clásicos |
+| `.capitales` | Adivina la capital |
+| `.anagrama` | Ordena las letras |
+| `.ttt @usuario` | Tres en raya PvP |
+
+### 🎌 Anime
+| Comando | Descripción |
+|---|---|
+| `.anime <nombre>` | Ficha completa de un anime (MyAnimeList) |
+| `.manga <nombre>` | Ficha de un manga |
+| `.personaje <nombre>` | Info e imagen de un personaje |
+| `.temporada` | Animes que salen esta temporada |
+| `.animequote` | Frase célebre de anime |
+| `.waifu` / `.neko` | Imagen aleatoria de anime (solo endpoints SFW) |
+| `.quirk` | Genera tu Quirk al estilo My Hero Academia |
+| `.heroe` | Tu licencia de héroe profesional |
+
+### 🎭 Diversión
+| Comando | Descripción |
+|---|---|
+| `.chiste` | Un chiste (filtrado, sin contenido subido de tono) |
+| `.meme` | Meme aleatorio apto para todos |
+| `.frase` | Frase motivacional |
+| `.ship @a @b` | Compatibilidad (siempre da el mismo % para la misma pareja) |
+| `.verdadoreto` | Verdad o reto |
+| `.piropo @x` | Un cumplido sano |
+| `.abrazar @x` | Reacciones animadas: abrazar, chocalos, bailar, saludar, acariciar... |
+
+### 📚 Estudio
+| Comando | Descripción |
+|---|---|
+| `.rae <palabra>` | Significado de una palabra |
+| `.sinonimos` / `.antonimos` | Lista de sinónimos o antónimos |
+| `.tarea <pregunta>` | Respuesta explicada paso a paso |
+| `.resolver 2x+5=15` | Resuelve ecuaciones mostrando el proceso |
+| `.ortografia` | Corrige ortografía y gramática |
+| `.elemento oxigeno` | Datos de la tabla periódica |
+
+### 🔐 Técnico
+| Comando | Descripción |
+|---|---|
+| `.base64` / `.debase64` | Codificar y decodificar |
+| `.md5` / `.sha256` / `.hash` | Generar hashes |
+| `.password 20` | Contraseña segura |
+| `.ip 8.8.8.8` | Información de una IP o dominio |
+| `.binario` / `.debinario` | Texto ⇄ binario |
+
+### 📅 Productividad
+| Comando | Descripción |
+|---|---|
+| `.encuesta Pregunta \| A \| B` | Encuesta **nativa** de WhatsApp |
+| `.recordatorio 10m sacar la basura` | Te avisa pasado el tiempo |
+| `.nota add <texto>` | Notas personales (ver / borrar) |
+| `.temporizador 60` | Cuenta atrás que se edita sola |
+
+### 🖼️ Imagen
+| Comando | Descripción |
+|---|---|
+| `.pixelar` `.blur` `.espejo` `.invertir` | Filtros con ffmpeg (sin APIs) |
+| `.bn` `.sepia` `.brillo` `.circulo` | Más filtros |
+| `.quitarfondo` | Elimina el fondo de una foto |
+
+### 🤝 Social
+| Comando | Descripción |
+|---|---|
+| `.clan crear <nombre>` | Crear clan (5000 monedas) |
+| `.clan unirse / lista / salir` | Gestión del clan |
+| `.clan guerra <clan>` | Guerra de clanes usando el motor RPG |
+| `.casarse @x` / `.divorciarse` | Matrimonios |
+| `.pareja` | Ver con quién está casado alguien |
+| `.rep @x` / `.toprep` | Reputación cada 12 h |
+| `.regalar @x diamante 2` | Regalar objetos |
+
+### 🌍 Internacional
+| Comando | Descripción |
+|---|---|
+| `.hora <ciudad>` | Hora local en cualquier ciudad |
+| `.divisa 100 usd uyu` | Conversor de monedas |
+| `.pais Uruguay` | Datos y bandera de un país |
+
+### 🗡️ RPG
+| Comando | Descripción |
+|---|---|
+| `.crear <clase>` | Crear personaje: guerrero, mago, arquero o clérigo |
+| `.ficha` | Ver tu ficha (vida, ataque, defensa, equipo) |
+| `.cazar` | Combatir monstruos por XP y monedas (cada 3 min) |
+| `.mazmorra` | Jefe final, desde nivel 5 (cada 1 h) |
+| `.equipar espada` | Equipar arma o armadura |
+| `.curar` | Recuperar vida con vendaje, elixir o pagando |
+| `.duelo @usuario` | Duelo PvP apostando monedas |
+| `.toprpg` | Ranking de aventureros |
+| `.forjar arma` | Mejora tu equipo hasta +5 con minerales |
+| `.mascota adoptar lobo` | Mascota que pelea contigo |
+| `.misiones` | 3 misiones diarias con recompensas |
+
+### 💰 Economía
+| Comando | Descripción |
+|---|---|
+| `.balance` | Ver monedas |
+| `.daily` | Recompensa diaria |
+| `.work` | Trabajar (cada 10 min) |
+| `.rob @usuario` | Robar monedas |
+| `.pay @usuario 500` | Transferir |
+| `.dep <n>` / `.ret <n>` | Banco |
+| `.top` | Top 10 más ricos |
+| `.tienda` | Ver los objetos a la venta |
+| `.comprar pico` | Comprar un objeto |
+| `.vender diamante all` | Vender objetos |
+| `.inventario` | Ver tu mochila |
+| `.minar` | Minar minerales (necesita pico) |
+| `.pescar` | Pescar (necesita caña) |
+| `.usar pocion` | Usar un consumible |
+| `.comprar espada` | Equipo RPG: espada, arco, bastón, armadura, escudo |
+| `.loteria 27` | Elige número del 1 al 50, premio x30 |
+| `.cofre` | Cofre misterioso cada 2 h |
+
+### 🔎 Búsqueda
+| Comando | Descripción |
+|---|---|
+| `.ytsearch <texto>` | Buscar en YouTube |
+| `.wiki <tema>` | Wikipedia |
+| `.google <consulta>` | Buscar en la web |
+| `.imagen <texto>` | Buscar imágenes |
+| `.letra artista - canción` | Letras de canciones |
+| `.libro <título>` | Ficha de un libro (Google Books) |
+| `.receta <plato>` | Receta de cocina con ingredientes y pasos |
+| `.gif <texto>` | Buscar un GIF |
+
+### 📰 Actualidad
+| Comando | Descripción |
+|---|---|
+| `.noticias` | Titulares del momento (`.noticias tecnología` para filtrar) |
+| `.cripto` | Top de criptomonedas; `.cripto btc` para el detalle |
+| `.horoscopo aries` | Tu horóscopo del día |
+| `.dolar` / `.divisa 100 usd eur` | Cotizaciones |
+
+### 👥 Grupos *(requieren ser admin)*
+| Comando | Descripción |
+|---|---|
+| `.kick @usuario` | Expulsar |
+| `.add <número>` | Agregar |
+| `.promote` / `.demote` | Dar o quitar admin |
+| `.tagall [mensaje]` | Mencionar a todos |
+| `.hidetag <mensaje>` | Notificar sin mostrar menciones |
+| `.grupo abrir\|cerrar` | Abrir o cerrar el grupo |
+| `.link` | Enlace de invitación |
+| `.setname` / `.setdesc` | Cambiar nombre o descripción |
+| `.antilink on\|off` | Expulsar a quien mande links de grupos |
+| `.antiflood on\|off` | Advertir/expulsar a quien haga spam |
+| `.welcome on\|off` | Bienvenidas |
+| `.infogrupo` | Información del grupo |
+| `.warn @x` / `.unwarn @x` | Advertencias (3 = expulsión) |
+| `.antifake on 52 598` | Solo permite ciertos prefijos de país |
+| `.autoreveal on\|off` | Revela automáticamente las fotos de "una sola vez" |
+| `.setreglas <texto>` / `.reglas` | Definir y mostrar las reglas del grupo |
+| `.setwelcome <texto>` | Bienvenida personalizada con variables |
+| `.admins` | Lista de administradores |
+| `.delete` | Borra un mensaje del bot |
+| `.setppgrupo` | Cambia la foto del grupo |
+
+### 🤖 Sub-Bots
+| Comando | Descripción |
+|---|---|
+| `.jadibot` | Volverte sub-bot con **código de 8 dígitos** |
+| `.qrbot` | Volverte sub-bot con **QR** |
+| `.stopbot` | Desconectar tu sub-bot |
+| `.bots` | Ver sub-bots conectados |
+
+---
+
+## ⚙️ Configuración: cómo cambiar cosas
+
+Todo lo que se personaliza está en **`config.js`**. Ábrelo con `nano config.js`.
+
+### Cambiar el nombre del bot
+```js
+botName: 'Izuku Bot',   // ponle el nombre que quieras
+```
+
+### Cambiar el dueño
+```js
+owner: ['5212345678901'],              // un dueño
+owner: ['5212345678901', '34600111222'], // varios dueños
+ownerName: 'Lyan',
+```
+
+### Cambiar el prefijo
+```js
+prefix: ['.', '!', '/', '#'],  // varios prefijos a la vez
+prefix: ['#'],                 // solo uno
+prefix: [''],                  // SIN prefijo: "menu" funciona directo
+```
+
+### Cambiar la imagen del menú
+```js
+menuImage: 'https://i.imgur.com/tuimagen.jpg',
+```
+
+### Modos del bot
+```js
+self: false,       // true = el bot SOLO responde al dueño (modo privado)
+onlyGroups: false, // true = solo funciona en grupos
+autoRead: false,   // true = marca los mensajes como leídos
+antiCall: true,    // rechaza llamadas automáticamente
+maxSubBots: 20,    // cuántos sub-bots se permiten a la vez
+```
+
+### Ajustar la economía
+```js
+economy: {
+  dailyReward: 1000,  // monedas del .daily
+  workMin: 100,       // pago mínimo del .work
+  workMax: 900,       // pago máximo del .work
+  robChance: 0.45     // probabilidad de robar con éxito (45 %)
+}
+```
+
+### Cambiar el banner del menú
+
+**La forma más fácil (desde WhatsApp):** envíale la foto al bot con el texto
+`.setbanner`, o responde a una imagen con `.setbanner`. Se guarda sola en
+`media/banner.jpg` y el menú la usa al instante. _(Solo el dueño puede hacerlo.)_
+
+**A mano:** el `.menu` acepta una URL o un archivo local:
+
+```js
+// Opción 1: una URL
+menuImage: 'https://i.imgur.com/tuimagen.jpg',
+
+// Opción 2: un archivo dentro del proyecto (recomendado, no depende de internet)
+menuImage: './media/banner.jpg',
+```
+
+Para la opción 2 copia tu imagen a la carpeta `media/` del bot:
+
+```bash
+mkdir -p media
+cp /sdcard/Download/mi-banner.jpg media/banner.jpg
+```
+
+### Personalizar el diseño del menú
+
+Todo el estilo vive en `plugins/info/menu.js`:
+
+| Qué cambiar | Dónde |
+|---|---|
+| Emoji, título y descripción de cada categoría | tabla `CATS` |
+| Orden en que salen las categorías | se toma del orden de `CATS` |
+| Consejos aleatorios del pie | lista `TIPS` (usa `{p}` para el prefijo) |
+| Frases del encabezado | lista `FRASES` |
+| Saludo según la hora | función `saludo()` |
+| Botones del menú | array `botones` dentro de `run()` |
+| Marcos y bordes | las plantillas de texto dentro de `run()` |
+
+### El botón de categorías
+
+Al final del `.menu` aparecen los atajos rápidos:
+
+```
+▢ 📂 Ver categorías  →  .categorias
+▢ ℹ️ Info del bot    →  .infobot
+▢ 👑 Creador         →  .owner
+```
+
+WhatsApp dejó de mostrar los botones clásicos en casi todas las versiones, así que
+por defecto el menú se manda como **mensaje normal** y siempre se ve bien.
+Si quieres probar los botones nativos, en `config.js`:
+
+```js
+buttons: true,   // por defecto false
+```
+
+También funciona escribiendo `.categorias`, que lista las categorías con su número
+de comandos y el atajo `.menu <categoría>` de cada una.
+
+> El menú **nunca** se envía como "foto de una sola vez": se manda como imagen
+> normal, así puedes volver a abrirlo cuando quieras.
+
+### Revelar fotos de "una sola vez"
+
+Izuku puede abrir las fotos, videos y notas de voz enviadas en modo **"ver una sola vez"**.
+
+**Manual:** responde al mensaje con `.reveal` (también vale `.vv`, `.ver` o `.revelar`) y el bot
+te lo reenvía como un mensaje normal, que ya no se borra.
+
+**Automático:** un admin puede activar `.autoreveal on` en el grupo. A partir de ahí, cada vez
+que alguien mande algo de una sola vez, el bot lo publicará abierto al instante. Se guarda en
+el campo `autoReveal` del chat, así que cada grupo decide por su cuenta. Para apagarlo:
+`.autoreveal off`.
+
+> ⚠️ Úsalo con cabeza: en algunos grupos revelar mensajes privados puede molestar. Por eso el
+> automático viene **apagado** por defecto y solo lo pueden encender los administradores.
+
+### Editar el RPG
+
+Está todo en `lib/rpg.js`:
+
+- **`CLASES`** — añade o retoca clases (vida, ataque, defensa).
+- **`MONSTRUOS`** y **`JEFES`** — enemigos con su nivel, estadísticas y recompensas.
+- **`EQUIPO`** — cuánto suma cada arma/armadura (debe existir también en `lib/shop.js` para poder comprarse).
+- **`xpNecesaria()`** — curva de experiencia (`level * 150` por defecto).
+- **`monstruoPara()`** — qué tan rápido escalan los monstruos (`* 0.12` por nivel de diferencia).
+- **`combate()`** — fórmula de daño, críticos y límite de turnos.
+
+Ejemplo, agregar un monstruo:
+
+```js
+{ emoji: '🕷️', name: 'Araña gigante', lvl: 6, hp: 170, atk: 33, def: 15, coins: 750, xp: 110 }
+```
+
+### Agregar objetos a la tienda
+
+Abre `lib/shop.js` y añade una entrada al objeto `ITEMS`:
+
+```js
+export const ITEMS = {
+  // ...
+  escudo: {
+    emoji: '🛡️',
+    name: 'Escudo',
+    price: 8000,   // lo que cuesta comprarlo (0 = no se vende en la tienda)
+    sell: 4000,    // lo que te pagan al venderlo
+    type: 'item',  // 'tool' | 'item' | 'consumable'
+    desc: 'Te protege de los robos'
+  }
+}
+```
+
+Aparecerá solo en `.tienda`, `.comprar`, `.vender` e `.inventario`.
+
+Para cambiar las rarezas de la minería o la pesca edita la tabla de pesos en
+`plugins/economia/minar.js` o `pescar.js` (números más altos = más probable):
+
+```js
+const key = roll({ carbon: 50, hierro: 30, oro: 15, diamante: 5 })
+```
+
+### Activar la IA con tu propia API key
+
+Por defecto la IA usa servicios públicos gratuitos (pueden fallar o ir lentos).
+Para usar tu propia clave, edita `config.js`:
+
+```js
+apis: {
+  openai: 'sk-xxxxxxxxxxxxxxxx',   // de platform.openai.com
+  gemini: ''                       // o de aistudio.google.com
+}
+```
+
+O crea un archivo `.env` (copia `.env.example`) y ejecuta:
+
+```bash
+OPENAI_API_KEY=sk-xxxx npm start
+```
+
+### Cambiar el mensaje de bienvenida
+
+Está en **`index.js`**, dentro del evento `group-participants.update`:
+
+```js
+text: `👋 ¡Bienvenido ${tag} a *${meta.subject}*!`
+```
+
+### Cambiar los textos de un comando
+
+Cada comando es un archivo independiente dentro de `plugins/`. Por ejemplo, para cambiar
+lo que dice el ping: `nano plugins/info/ping.js`. **No hace falta reiniciar el bot**: los
+plugins se recargan solos al guardar.
+
+---
+
+## ➕ Cómo agregar un comando nuevo
+
+1. Crea un archivo dentro de la categoría que quieras, por ejemplo
+   `plugins/herramientas/saludo.js`:
+
+```js
+export default {
+  // Palabras que activan el comando (la primera es la que sale en el menú)
+  command: ['saludo', 'hola'],
+
+  // Categoría (si la omites, se usa el nombre de la carpeta)
+  category: 'herramientas',
+
+  // Texto que aparece en el menú
+  desc: 'Te saluda con tu nombre',
+
+  // --- Restricciones opcionales (todas por defecto en false) ---
+  // owner: true,     solo el dueño
+  // group: true,     solo en grupos
+  // private: true,   solo en privado
+  // admin: true,     solo admins del grupo
+  // botAdmin: true,  el bot debe ser admin
+  // register: true,  el usuario debe estar registrado
+  // hidden: true,    no aparece en el menú
+
+  async run({ sock, m, text, args, usedPrefix, command, user, isOwner }) {
+    if (!text) return m.reply(`👋 Uso: *${usedPrefix}${command} TuNombre*`)
+    await m.reply(`¡Hola *${text}*! Tienes ${user.coins} monedas 💰`)
+  }
+}
+```
+
+2. Guarda el archivo. En la consola verás `[plugins] recargado: saludo.js`.
+3. Pruébalo en WhatsApp: `.saludo Izuku`
+
+### Qué recibe tu comando en `run({ ... })`
+
+| Variable | Qué es |
+|---|---|
+| `sock` | Socket de Baileys (enviar mensajes, admin de grupos, etc.) |
+| `m` | El mensaje: `m.chat`, `m.sender`, `m.text`, `m.isGroup`, `m.quoted`, `m.reply()`, `m.react('👍')`, `m.download()` |
+| `text` | Todo lo que escribió el usuario después del comando |
+| `args` | Ese texto separado en palabras (`args[0]`, `args[1]`…) |
+| `command` | El comando que se usó |
+| `usedPrefix` | El prefijo con el que se invocó |
+| `user` | Datos del usuario en la base de datos (`coins`, `level`, `exp`…) |
+| `chat` | Ajustes del chat (`welcome`, `antilink`, `mute`…) |
+| `isOwner`, `isAdmin`, `isBotAdmin` | Permisos |
+| `participants`, `groupMetadata` | Info del grupo |
+| `db` | Base de datos completa |
+
+### Cosas útiles
+
+```js
+// Enviar imagen
+await sock.sendMessage(m.chat, { image: { url: 'https://...' }, caption: 'Hola' }, { quoted: m })
+
+// Enviar un archivo cualquiera detectando el tipo
+await sock.sendFile(m.chat, buffer, '', 'Mi archivo', m)
+
+// Reaccionar
+await m.react('🔥')
+
+// Descargar la imagen/video a la que respondió el usuario
+const buffer = await m.quoted.download()
+
+// Mencionar a alguien
+await sock.sendMessage(m.chat, { text: `Hola @${jid.split('@')[0]}`, mentions: [jid] })
+```
+
+### Agregar una categoría nueva al menú
+
+1. Crea la carpeta: `mkdir plugins/anime`
+2. Pon tus comandos dentro.
+3. Abre `plugins/info/menu.js` y añade tu categoría a los tres objetos:
+
+```js
+const EMOJI = { ..., anime: '🌸' }
+const TITLE = { ..., anime: 'ANIME' }
+const ORDER = [..., 'anime']
+```
+
+### Quitar un comando
+
+Simplemente borra su archivo: `rm plugins/juegos/ruleta.js`.
+
+---
+
+## 🤖 Cómo funcionan los sub-bots
+
+Un **sub-bot** es otra persona que presta su número para que funcione con *tu* mismo código.
+Todos los sub-bots comparten los plugins y la base de datos del bot principal.
+
+1. El usuario escribe `.jadibot` (código de 8 dígitos) o `.qrbot` (QR).
+2. El bot principal le envía el código/QR por privado o al grupo.
+3. Él lo introduce en **WhatsApp ▸ Dispositivos vinculados**.
+4. Su sesión se guarda en `subbots/<número>/` y **se reconecta sola** cada vez que enciendes el bot.
+5. Para desconectarse: `.stopbot` (borra su sesión).
+
+Ajusta el límite en `config.js` con `maxSubBots`.
+
+> ⚠️ Cada sub-bot consume RAM. En un celular de gama media no pases de ~5 sub-bots.
+
+---
+
+## 👑 Comandos del dueño
+
+Solo funcionan para los números que pusiste en `owner` dentro de `config.js`.
+
+| Comando | Descripción |
+|---|---|
+| `.ban @usuario` / `.unban` | Bloquear o desbloquear a alguien del bot |
+| `.addcoins @usuario 1000` | Regalar monedas |
+| `.delcoins @usuario 500` | Quitar monedas |
+| `.setprefix #` | Cambiar el prefijo al vuelo (`vacio` = sin prefijo) |
+| `.mute` / `.unmute` | Silenciar al bot en el chat actual |
+| `.bc <mensaje>` | Difusión a todos los grupos |
+| `.reload` | Recargar todos los plugins sin reiniciar |
+| `.restart` | Reiniciar el bot |
+| `.setbanner` | Cambiar la imagen del menú (responde a una foto) |
+| `.setppbot` | Cambiar la foto de perfil del bot |
+| `.db` | Panel de administración de datos |
+| `.backup` / `.restore` | Descargar y restaurar la base de datos |
+| `.reset` | Reiniciar datos (con confirmación) |
+| `.cleartmp` | Borrar archivos temporales |
+
+> `.setprefix` es temporal (hasta reiniciar). Para que sea permanente edita `config.js`.
+> `.restart` solo vuelve a encender el bot si lo lanzaste con `./start.sh` o con pm2.
+
+---
+
+## 🗄️ Administrar y reiniciar datos
+
+Todo esto es **solo para el dueño** y está en el menú, categoría 👑 *Dueño*.
+
+### Panel de datos — `.db`
+
+Te muestra de un vistazo: peso del archivo, RAM usada, usuarios totales,
+registrados, con personaje RPG, baneados, monedas en circulación, chats y sub-bots.
+
+| Acción | Qué hace |
+|---|---|
+| `.db` | Abre el panel con todas las estadísticas |
+| `.db guardar` | Fuerza el guardado a disco |
+| `.db recargar` | Vuelve a leer el archivo desde el disco |
+| `.db compactar [días]` | Borra usuarios fantasma (sin registro ni progreso) |
+| `.db user @usuario` | Muestra el registro completo en JSON |
+| `.db set @usuario coins 5000` | Edita cualquier campo al vuelo |
+| `.db top` | Top 15 por monedas |
+
+### Copias de seguridad
+
+```
+.backup     → el bot te envía el database.json como documento
+.restore    → responde a ese archivo y lo restaura
+```
+
+Antes de restaurar guarda la base actual como `database.json.antes-de-restaurar`,
+así que **nunca pierdes nada por error**.
+
+### Reiniciar datos — `.reset`
+
+Pide **confirmación obligatoria** (hay que repetir el comando en 60 segundos) y
+siempre deja una copia previa en `database.json.antes-del-reset`.
+
+| Comando | Qué borra |
+|---|---|
+| `.reset todo` | Usuarios, chats y ajustes: la base queda vacía |
+| `.reset usuarios` | Todos los usuarios |
+| `.reset economia` | Monedas, banco e inventarios (todos vuelven a 500) |
+| `.reset rpg` | Todos los personajes RPG |
+| `.reset niveles` | Niveles y experiencia a cero |
+| `.reset chats` | Configuración de todos los chats |
+| `.reset usuario @x` | Solo esa persona |
+
+---
+
+## 🚀 Hosting: hacerlo más rápido y con más espacio
+
+### Optimizaciones que ya trae el bot
+
+| Mejora | Efecto |
+|---|---|
+| **Caché de grupos** (`lib/cache.js`) | Antes pedía la info del grupo a WhatsApp en *cada* mensaje. Ahora se guarda 5 min y se invalida sola al cambiar el grupo. Es la mejora que más se nota en grupos grandes |
+| **Caché de APIs** | Búsquedas de anime, países, etc. se reutilizan 10 min |
+| **Guardado inteligente** | La base solo se escribe si algo cambió, y de forma atómica (un corte de luz no la corrompe) |
+| **Sin historial** | `syncFullHistory: false` evita descargar meses de chats al vincular |
+| **Limpieza automática** | Los temporales se borran solos cada 30 min |
+| **`.db compactar`** | Elimina usuarios fantasma para que el JSON no crezca sin control |
+
+### ¿Dónde alojarlo?
+
+| Opción | Velocidad | Espacio | Coste | Para quién |
+|---|---|---|---|---|
+| 📱 **Termux** | Media | La del móvil | Gratis | Probar y uso personal |
+| 🖥️ **VPS** (Contabo, Hetzner, Oracle Free) | **Alta** | 50-200 GB | 0-5 €/mes | **Lo recomendado** |
+| 🐳 **Docker** en VPS | Alta | Según VPS | — | Si quieres despliegues limpios |
+| ☁️ Railway / Render / Fly.io | Media | Poca y efímera | Gratis limitado | Pruebas (ojo: borran la sesión al redesplegar) |
+
+> ⚠️ Evita los hosts gratuitos tipo Heroku/Render para producción: reinician el
+> contenedor y **pierdes la sesión de WhatsApp**, teniendo que re-vincular.
+> Oracle Cloud tiene una capa gratuita de verdad (4 vCPU / 24 GB RAM ARM) perfecta para esto.
+
+### Montarlo en un VPS con pm2 (recomendado)
+
+```bash
+# 1. Dependencias
+sudo apt update && sudo apt install -y nodejs npm git ffmpeg webp
+
+# 2. El bot
+git clone https://github.com/lyanvalentinmail-prog/Izuku-Bot.git
+cd Izuku-Bot && npm install
+
+# 3. Vincular una primera vez
+npm run code
+
+# 4. Dejarlo para siempre con pm2
+npm i -g pm2
+pm2 start ecosystem.config.cjs
+pm2 save && pm2 startup     # arranca solo al reiniciar el servidor
+pm2 logs izuku-bot          # ver la consola
+pm2 monit                   # ver CPU y RAM en vivo
+```
+
+El archivo `ecosystem.config.cjs` ya está configurado: se reinicia solo si se cae,
+se reinicia si pasa de 600 MB de RAM y guarda los logs en `logs/`.
+
+### Con Docker
+
+```bash
+docker compose up -d --build     # construir y arrancar
+docker compose logs -f           # ver la consola (y el QR)
+docker attach izuku-bot          # para escribir el código de vinculación
+docker compose restart           # reiniciar
+```
+
+Los volúmenes de `docker-compose.yml` mantienen `sessions/`, `subbots/`,
+`database/` y `media/` fuera del contenedor, así que **actualizar la imagen no
+borra tu sesión**.
+
+### Trucos extra de rendimiento
+
+```bash
+# Más memoria para Node si tu servidor va sobrado
+NODE_OPTIONS=--max-old-space-size=1024 npm start
+
+# Limpiar temporales y compactar la base de vez en cuando
+.cleartmp     y     .db compactar 30
+```
+
+- Baja `maxSubBots` en `config.js` si vas justo de RAM: **cada sub-bot es una conexión completa**.
+- Si un grupo te satura, usa `.mute` en ese chat.
+- Pon `autoRead: false` y `antiCall: true` para ahorrar trabajo innecesario.
+
+---
+
+## 📂 Estructura del proyecto
+
+```
+Izuku-Bot/
+├── index.js              # Conexión con WhatsApp (QR / código), eventos, bienvenidas
+├── handler.js            # Procesa cada mensaje: prefijo, permisos, antilink, XP
+├── config.js             # ⚙️ TODA la configuración editable
+├── start.sh              # Arranque con reinicio automático
+├── lib/
+│   ├── loader.js         # Carga y recarga los plugins
+│   ├── serialize.js      # Convierte los mensajes de Baileys en algo cómodo
+│   ├── database.js       # Base de datos JSON (usuarios, chats)
+│   ├── functions.js      # Utilidades: stickers, descargas, formatos
+│   ├── downloader.js     # APIs de descarga (YouTube, TikTok…) ← edítalo si una falla
+│   ├── ai.js             # Conexión con los modelos de IA
+│   ├── sticker.js        # Creación de stickers + metadata (pack/autor)
+│   ├── shop.js           # 🛒 Catálogo de la tienda (objetos, precios, rarezas)
+│   ├── rpg.js            # 🗡️ Clases, monstruos, jefes y motor de combate
+│   ├── cache.js          # ⚡ Cachés de grupos y de APIs (rendimiento)
+│   ├── helpers.js        # Métodos extra del socket (sendFile…)
+│   └── subbot.js         # Sistema de sub-bots
+├── plugins/              # 🧩 Un archivo = un comando
+│   ├── info/  perfil/  ia/  herramientas/  descargas/
+│   ├── stickers/  juegos/  rpg/  economia/  busqueda/  grupos/
+│   ├── anime/  diversion/  estudio/  tecnico/  productividad/
+│   └── imagen/  social/  internacional/  subbots/  owner/
+├── install.sh            # ⚡ Instalador de 1 comando
+├── ecosystem.config.cjs  # Configuración de pm2
+├── Dockerfile            # Imagen Docker
+├── docker-compose.yml    # Despliegue con volúmenes persistentes
+├── database/             # database.json (se crea solo)
+├── sessions/             # Sesión del bot principal (NO la compartas)
+└── subbots/              # Sesiones de los sub-bots
+```
+
+---
+
+## 🩺 Solución de problemas
+
+| Problema | Solución |
+|---|---|
+| `npm error Missing script: "start"` | No estás dentro de la carpeta del bot o la rama no tiene el código. Haz `cd Izuku-Bot && ls`: debes ver `package.json`. Si no aparece, mira la nota de abajo 👇 |
+| `npm install` falla en Termux | `pkg install -y python make clang` y vuelve a intentar |
+| `ffmpeg: not found` / stickers no funcionan | `pkg install -y ffmpeg libwebp` |
+| El QR no se ve bien | Pellizca la pantalla para reducir la letra, o usa `npm run code` |
+| El código de 8 dígitos no llega | Asegúrate de poner el número **con código de país y sin `+`** |
+| `Connection closed` en bucle | Borra la sesión: `rm -rf sessions` y vuelve a vincular |
+| El bot no responde | Revisa el **prefijo** en `config.js` y que `self` esté en `false` |
+| Las descargas fallan | Las APIs públicas cambian seguido: edita/añade endpoints en `lib/downloader.js` |
+| La IA no responde | Pon tu propia API key en `config.js ▸ apis` |
+| Termux se cierra solo | Ejecuta `termux-wake-lock` y desactiva la optimización de batería de Termux |
+
+### 🔀 ¿Clonaste y la carpeta está casi vacía?
+
+Significa que el código todavía está en otra rama. Descárgala así:
+
+```bash
+cd Izuku-Bot
+git fetch origin
+git checkout arena/01a0ffed-izuku-bot
+ls        # ahora sí debes ver index.js, package.json, plugins/...
+npm install
+npm start
+```
+
+---
+
+<div align="center">
+
+### ⚠️ Aviso
+
+Este proyecto no está afiliado a WhatsApp ni a Meta. Úsalo de forma responsable:
+el spam puede hacer que tu número sea **baneado**. Se recomienda usar un número secundario.
+
+**Hecho con ❤️ y Node.js — Izuku Bot**
+
+</div>
