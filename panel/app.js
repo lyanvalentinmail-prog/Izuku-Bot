@@ -15,6 +15,7 @@ const estado = {
   resumen: {},
   stats: {},
   subbots: [],
+  repos: [],
   comandos: [],
   banner: {},
   urls: {},
@@ -108,6 +109,7 @@ function aplicarEstado(datos) {
   if (datos.resumen) estado.resumen = datos.resumen
   if (datos.stats) estado.stats = datos.stats
   if (datos.subbots) estado.subbots = datos.subbots
+  if (datos.repos) estado.repos = datos.repos
   if (datos.banner) estado.banner = datos.banner
   estado.urls = { url: datos.url }
 
@@ -123,6 +125,7 @@ function aplicarEstado(datos) {
   renderAjustes()
   renderBanner()
   renderSubbots()
+  renderRepos()
   renderStats()
   if (datos.logs) pintarLogs(datos.logs, true)
 }
@@ -467,8 +470,9 @@ function renderComandos() {
   $('#cmd-lista').innerHTML = lista.length
     ? lista.map((c) => {
         const candado = c.owner || c.rowner ? ' 👑' : c.admin ? ' 🛡️' : c.group ? ' 👥' : c.register ? ' 📝' : ''
+        const etiqueta = c.repo ? `${c.category} · repo` : c.category
         return `<div class="cmd" data-cmd="${esc(c.command[0])}">
-          <span class="cat">${esc(c.category)}</span>
+          <span class="cat">${esc(etiqueta)}</span>
           <b>${esc(c.command.slice(0, 4).join(' · '))}${candado}</b>
           <small>${esc(c.desc || 'sin descripción')}</small>
         </div>`
@@ -596,10 +600,75 @@ function renderSubbots() {
   })
 }
 
+/* ---------------- pestaña: bots — repositorios ---------------- */
+
+function renderRepos() {
+  const lista = estado.repos || []
+  const caja = $('#repo-lista')
+  if (!caja) return
+
+  if (!lista.length) {
+    caja.innerHTML = '<div class="vacio">Todavía no hay bots por repositorio. Pega arriba el enlace de GitHub de un bot para usar sus comandos.</div>'
+    return
+  }
+
+  caja.innerHTML = lista.map((r) => `
+    <div class="repo">
+      <div class="fila-entre">
+        <div>
+          <div class="num">${esc(r.owner)}/${esc(r.repo)}</div>
+          <span class="chico muted">${r.cargados ?? r.comandos ?? 0} comando(s)${r.branch ? ` · rama ${esc(r.branch)}` : ''}${r.instalado ? ` · ${new Date(r.instalado).toLocaleDateString('es')}` : ''}</span>
+        </div>
+        <a class="chico" href="${esc(r.url)}" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+      ${r.error ? `<p class="aviso">${esc(r.error)}</p>` : ''}
+      <div class="acciones">
+        <button class="btn chico-btn" data-reporecargar="${esc(r.id)}">Recargar</button>
+        <button class="btn chico-btn peligro" data-repoborrar="${esc(r.id)}">Quitar</button>
+      </div>
+    </div>`).join('')
+
+  $$('[data-reporecargar]', caja).forEach((b) => {
+    b.onclick = () => accion(async () => {
+      b.disabled = true
+      try {
+        const r = await pedir('/api/repos/reload', { method: 'POST', cuerpo: { id: b.dataset.reporecargar } })
+        estado.repos = r.repos
+        renderRepos()
+        avisar('Bot recargado', 'ok')
+      } finally { b.disabled = false }
+    })
+  })
+  $$('[data-repoborrar]', caja).forEach((b) => {
+    b.onclick = () => {
+      if (!confirm('¿Quitar este bot y sus comandos?')) return
+      accion(async () => {
+        const r = await pedir(`/api/repos?id=${encodeURIComponent(b.dataset.repoborrar)}`, { method: 'DELETE' })
+        estado.repos = r.repos
+        renderRepos()
+        avisar('Bot quitado', 'warn')
+      })
+    }
+  })
+}
+
 /* ---------------- pestaña: sistema ---------------- */
 
 function renderStats() {
   const s = estado.stats || {}
+  const d = s.disco
+
+  // Cuánto almacenamiento queda (chip de la cabecera + barra de Sistema)
+  const chip = $('#almacen')
+  if (chip) chip.textContent = d ? `Disco: ${d.libreGB} GB libres` : 'Disco: —'
+  const resumen = $('#disco-resumen')
+  if (resumen) resumen.textContent = d ? `Quedan ${d.libreGB} GB libres de ${d.totalGB} GB · usado ${d.pct}%` : '—'
+  const barra = $('#disco-barra')
+  if (barra && d) {
+    barra.style.width = Math.min(100, d.pct) + '%'
+    barra.classList.toggle('poco', d.pct > 85)
+  }
+
   const filas = [
     ['Estado', (TEXTOS_ESTADO[estado.sesion?.status] || ['', '—'])[1]],
     ['Encendido hace', s.uptime !== undefined ? duracion(s.uptime) : '—'],
@@ -608,6 +677,7 @@ function renderStats() {
     ['Usuarios', s.usuarios ?? '—'],
     ['Chats configurados', s.chats ?? '—'],
     ['Sub-bots', `${s.subbotsActivos ?? 0} activos / ${s.subbots ?? 0}`],
+    ['Almacenamiento libre', d ? `${d.libreGB} GB de ${d.totalGB} GB` : '—'],
     ['Memoria', s.memoriaMB !== undefined ? `${s.memoriaMB} MB` : '—'],
     ['Node', s.node || '—'],
     ['Entorno', s.entorno || '—'],
@@ -727,6 +797,8 @@ $('#btn-reiniciar').onclick = () => accion(async () => {
 $('#cmd-buscar').addEventListener('input', (e) => { estado.filtro = e.target.value; renderComandos() })
 $('#btn-run').onclick = ejecutarComando
 $('#run-args').addEventListener('keydown', (e) => { if (e.key === 'Enter') ejecutarComando() })
+$('#repo-url').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#btn-repo-instalar').click() })
+$('#repo-rama').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#btn-repo-instalar').click() })
 $('#btn-guardar').onclick = guardarAjustes
 $('#btn-recargar').onclick = () => accion(async () => { avisar('Cambios descartados', 'info') })
 $('#btn-reset-ajustes').onclick = () => {
@@ -762,6 +834,24 @@ $('#btn-banner-quitar').onclick = () => {
     avisar('Banner quitado', 'warn')
   })
 }
+
+$('#btn-repo-instalar').onclick = () => accion(async () => {
+  const url = $('#repo-url').value.trim()
+  const branch = $('#repo-rama').value.trim()
+  if (!url) throw new Error('Pega el enlace del repositorio de GitHub.')
+  const boton = $('#btn-repo-instalar')
+  boton.disabled = true
+  avisar('Clonando el repositorio… esto puede tardar unos segundos', 'info', 8000)
+  try {
+    const r = await pedir('/api/repos', { method: 'POST', cuerpo: { url, branch } })
+    estado.repos = r.repos
+    renderRepos()
+    $('#repo-url').value = ''
+    $('#repo-rama').value = ''
+    avisar(`Bot instalado: ${r.repo.comandos} comando(s) nuevos ✅`, 'ok')
+    await cargarComandos()
+  } finally { boton.disabled = false }
+})
 
 $('#btn-sub-crear').onclick = () => accion(async () => {
   const phone = $('#sub-numero').value.replace(/\D/g, '')

@@ -1,9 +1,11 @@
 node_modules/
 sessions/
 subbots/
+bots/
 tmp/
 database/database.json
 database/panel.key
+database/repos.json
 media/banner.jpg
 
 *.log
