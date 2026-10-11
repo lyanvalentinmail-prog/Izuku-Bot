@@ -17,6 +17,13 @@ module.exports = {
     time: true,
     env: {
       NODE_ENV: 'production',
+      // Panel web (para vincular el bot por QR o con código desde el navegador)
+      PANEL_ENABLED: 'true',
+      PORT: '3000',
+      // Clave del panel: si la dejas vacía el bot genera una y la muestra en los logs
+      // PANEL_PASSWORD: 'pon-aqui-tu-clave',
+      // Para guardar los datos en otra carpeta (disco externo, por ejemplo):
+      // DATA_DIR: '/var/data',
       // Mas memoria disponible para Node (subelo si tu servidor tiene RAM de sobra)
       NODE_OPTIONS: '--max-old-space-size=512'
     },

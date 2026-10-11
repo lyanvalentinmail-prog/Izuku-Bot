@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>Izuku Bot · Panel</title>
+<link rel="icon" href="/favicon.svg">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="login" class="login oculto">
+  <form class="login-caja" id="login-form">
+    <div class="login-logo">🦸</div>
+    <h1>Panel de Izuku Bot</h1>
+    <p class="muted">Escribe la clave del panel para entrar.<br>
+      Está en los <strong>logs del servidor</strong> (busca <code>Clave del panel</code>) o en la variable
+      <code>PANEL_PASSWORD</code>.</p>
+    <input type="password" id="login-clave" placeholder="Clave del panel" autocomplete="current-password" required>
+    <button class="btn primario" type="submit">Entrar</button>
+    <p class="error" id="login-error"></p>
+  </form>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app" class="oculto">
+
+  <header class="cabecera">
+    <div class="marca">
+      <span class="logo">🦸</span>
+      <div>
+        <h1 id="titulo-bot">Izuku Bot</h1>
+        <a id="titulo-url" class="muted chico" href="#" target="_blank" rel="noopener"></a>
+      </div>
+    </div>
+    <div class="cabecera-estado">
+      <span id="pastilla" class="pastilla gris"><i class="punto"></i><span id="pastilla-txt">Cargando…</span></span>
+      <button class="btn icono" id="btn-salir" title="Olvidar clave">⎋</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab activo" data-tab="conectar">🔗 Vincular</button>
+    <button class="tab" data-tab="ajustes">⚙️ Ajustes</button>
+    <button class="tab" data-tab="comandos">⌨️ Comandos</button>
+    <button class="tab" data-tab="subbots">🤖 Sub-bots</button>
+    <button class="tab" data-tab="sistema">📊 Sistema</button>
+  </nav>
+
+  <main>
+
+    <!-- ============ VINCULAR ============ -->
+    <section class="vista activa" id="vista-conectar">
+      <div class="tarjeta" id="tarjeta-estado">
+        <div class="fila-entre">
+          <h2>Conexión con WhatsApp</h2>
+          <span class="chico muted" id="conexion-desde"></span>
+        </div>
+        <div id="estado-detalle" class="estado-detalle muted">Cargando estado…</div>
+        <div class="acciones" id="acciones-conexion"></div>
+      </div>
+
+      <!-- QR -->
+      <div class="tarjeta oculto" id="tarjeta-qr">
+        <div class="fila-entre">
+          <h2>Código QR</h2>
+          <span class="sello real">✔ QR real de WhatsApp</span>
+        </div>
+        <div class="qr-caja">
+          <div class="qr-marco">
+            <img id="qr-img" alt="Código QR de WhatsApp" width="300" height="300">
+            <div class="qr-velo oculto" id="qr-velo"><span>Renovando QR…</span></div>
+          </div>
+          <div class="qr-info">
+            <ol class="pasos">
+              <li>Abre <strong>WhatsApp</strong> en tu teléfono.</li>
+              <li>Ve a <strong>Ajustes → Dispositivos vinculados</strong>.</li>
+              <li>Toca <strong>Vincular un dispositivo</strong>.</li>
+              <li>Apunta la cámara a este QR.</li>
+            </ol>
+            <div class="barra">
+              <div class="barra-relleno" id="qr-barra"></div>
+            </div>
+            <p class="chico muted" id="qr-pie">Esperando el QR de WhatsApp…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Código de 8 dígitos -->
+      <div class="tarjeta oculto" id="tarjeta-codigo">
+        <div class="fila-entre">
+          <h2>Código de 8 dígitos</h2>
+          <span class="sello real">✔ Código real de WhatsApp</span>
+        </div>
+
+        <div class="campo-fila">
+          <div class="campo">
+            <label for="cod-numero">Tu número con código de país</label>
+            <input type="tel" id="cod-numero" placeholder="59896719709" inputmode="numeric">
+            <small class="muted">Sin <code>+</code>, sin espacios y sin el 0 inicial. Ej: 598… (Uruguay), 521… (México), 34… (España).</small>
+          </div>
+          <button class="btn primario" id="btn-codigo">Pedir código</button>
+        </div>
+
+        <div id="cod-caja" class="oculto">
+          <div class="codigo-grande" id="cod-valor">····-····</div>
+          <div class="barra"><div class="barra-relleno" id="cod-barra"></div></div>
+          <p class="chico muted" id="cod-pie"></p>
+          <ol class="pasos">
+            <li>Abre <strong>WhatsApp</strong> en el número <strong id="cod-numero-eco">…</strong>.</li>
+            <li>Ve a <strong>Ajustes → Dispositivos vinculados</strong>.</li>
+            <li>Toca <strong>Vincular con número de teléfono</strong>.</li>
+            <li>Escribe el código de arriba.</li>
+          </ol>
+          <button class="btn" id="btn-recodigo">🔄 Pedir otro código</button>
+        </div>
+
+        <p class="aviso" id="cod-error-wrap" hidden><span id="cod-error"></span></p>
+      </div>
+
+      <div class="tarjeta" id="tarjeta-sesion-guardada">
+        <h2>Sesión guardada</h2>
+        <p class="muted" id="sesion-txt">—</p>
+        <div class="acciones">
+          <button class="btn" id="btn-reiniciar">🔁 Reiniciar conexión</button>
+          <button class="btn peligro" id="btn-borrar-sesion">🗑️ Borrar sesión guardada</button>
+        </div>
+        <p class="chico muted">Borra la sesión solo si el bot no logra conectarse o si quieres vincular otro número.</p>
+      </div>
+    </section>
+
+    <!-- ============ AJUSTES ============ -->
+    <section class="vista" id="vista-ajustes">
+      <div class="tarjeta">
+        <div class="fila-entre">
+          <h2>Ajustes del bot</h2>
+          <span class="chico muted">Se aplican al instante, sin reiniciar</span>
+        </div>
+        <div id="form-ajustes" class="ajustes"></div>
+        <div class="acciones fijas">
+          <button class="btn primario" id="btn-guardar">💾 Guardar cambios</button>
+          <button class="btn" id="btn-recargar">↻ Descartar</button>
+          <button class="btn peligro-suave" id="btn-reset-ajustes">Restaurar config.js</button>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <h2>Banner del menú</h2>
+        <div class="banner-caja">
+          <div class="banner-preview"><img id="banner-img" alt="Banner actual"><span id="banner-vacio" class="muted chico">Sin banner: el menú se envía solo con texto</span></div>
+          <div class="banner-acciones">
+            <input type="file" id="banner-file" accept="image/png,image/jpeg,image/webp" hidden>
+            <button class="btn" id="btn-banner-subir">🖼️ Subir imagen</button>
+            <button class="btn peligro-suave" id="btn-banner-quitar">Quitar banner</button>
+            <p class="chico muted">Se guarda como <code>media/banner.jpg</code> y se usa en <code>.menu</code>.
+              Máximo 8 MB. También puedes pegar una URL en el campo «Banner del menú».</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COMANDOS ============ -->
+    <section class="vista" id="vista-comandos">
+      <div class="tarjeta">
+        <div class="fila-entre">
+          <h2>Comandos (<span id="cmd-total">0</span>)</h2>
+          <input type="search" id="cmd-buscar" placeholder="Buscar comando…">
+        </div>
+        <div class="chips" id="cmd-cats"></div>
+        <div class="lista-comandos" id="cmd-lista"></div>
+      </div>
+
+      <div class="tarjeta">
+        <div class="fila-entre">
+          <h2>Probar un comando</h2>
+          <span class="chico muted">El bot responde en tu propio chat de WhatsApp</span>
+        </div>
+        <div class="campo-fila">
+          <div class="campo">
+            <label for="run-cmd">Comando</label>
+            <input type="text" id="run-cmd" placeholder="menu">
+          </div>
+          <div class="campo">
+            <label for="run-args">Argumentos (opcional)</label>
+            <input type="text" id="run-args" placeholder="texto, número, @usuario…">
+          </div>
+          <button class="btn primario" id="btn-run">▶ Ejecutar</button>
+        </div>
+        <div class="consola" id="consola-salida"><div class="consola-vacia muted">La respuesta del comando aparece acá.</div></div>
+      </div>
+    </section>
+
+    <!-- ============ SUB-BOTS ============ -->
+    <section class="vista" id="vista-subbots">
+      <div class="tarjeta">
+        <div class="fila-entre">
+          <h2>Sub-bots (<span id="sub-total">0</span>/<span id="sub-limite">0</span>)</h2>
+          <span class="chico muted">Números que también serán bot</span>
+        </div>
+        <div class="campo-fila">
+          <div class="campo">
+            <label for="sub-numero">Número del sub-bot</label>
+            <input type="tel" id="sub-numero" placeholder="59896719709" inputmode="numeric">
+            <small class="muted">Con código de país, sin <code>+</code> ni espacios.</small>
+          </div>
+          <div class="campo">
+            <label for="sub-metodo">Método</label>
+            <select id="sub-metodo">
+              <option value="qr">Código QR</option>
+              <option value="pairing">Código de 8 dígitos</option>
+            </select>
+          </div>
+          <button class="btn primario" id="btn-sub-crear">➕ Crear sub-bot</button>
+        </div>
+        <p class="chico muted">El bot principal debe estar conectado para crear sub-bots.</p>
+      </div>
+      <div id="sub-lista" class="sub-lista"></div>
+    </section>
+
+    <!-- ============ SISTEMA ============ -->
+    <section class="vista" id="vista-sistema">
+      <div class="tarjeta">
+        <h2>Estado del servidor</h2>
+        <div class="stats" id="stats"></div>
+      </div>
+
+      <div class="tarjeta">
+        <div class="fila-entre">
+          <h2>Mensaje masivo</h2>
+          <span class="chico muted">Se envía de a poco, sin bloquear el número</span>
+        </div>
+        <textarea id="dif-texto" rows="3" placeholder="Escribe el mensaje…"></textarea>
+        <div class="campo-fila">
+          <div class="campo">
+            <label for="dif-destino">Destinatarios</label>
+            <select id="dif-destino">
+              <option value="groups">Todos mis grupos</option>
+              <option value="users">Usuarios que ya usaron el bot</option>
+            </select>
+          </div>
+          <button class="btn primario" id="btn-difundir">📢 Enviar</button>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <div class="fila-entre">
+          <h2>Consola</h2>
+          <div class="acciones">
+            <label class="chico muted"><input type="checkbox" id="log-auto" checked> Auto-scroll</label>
+            <button class="btn chico-btn" id="btn-log-limpiar">Limpiar</button>
+          </div>
+        </div>
+        <div class="consola alta" id="consola"></div>
+      </div>
+
+      <div class="tarjeta">
+        <h2>Mantenimiento</h2>
+        <div class="acciones">
+          <button class="btn" id="btn-guardar-db">💾 Guardar base de datos</button>
+          <button class="btn" id="btn-compactar">🧹 Compactar usuarios</button>
+          <button class="btn peligro" id="btn-cerrar-sesion">🚪 Cerrar sesión de WhatsApp</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <span>Izuku Bot · panel web</span>
+    <span id="pie-entorno" class="muted chico"></span>
+  </footer>
+</div>
+
+<div id="avisos" class="avisos"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

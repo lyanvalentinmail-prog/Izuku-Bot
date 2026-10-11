@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import config from '../../config.js'
 import { formatSize } from '../../lib/functions.js'
+import { BANNER_FILE } from '../../lib/paths.js'
 
 export default {
   command: ['setbanner', 'setmenu', 'banner'],
@@ -27,7 +28,7 @@ ${actual}`)
     const buffer = await target.download()
     if (buffer.length > 8 * 1024 * 1024) return m.reply('⚠️ La imagen es muy pesada (máximo 8 MB).')
 
-    const destino = path.join(process.cwd(), 'media', 'banner.jpg')
+    const destino = BANNER_FILE
     fs.mkdirSync(path.dirname(destino), { recursive: true })
     fs.writeFileSync(destino, buffer)
     config.menuImage = './media/banner.jpg'

@@ -4,7 +4,9 @@ import db from '../../lib/database.js'
 import { formatSize, formatTime } from '../../lib/functions.js'
 import { subBots } from '../../lib/subbot.js'
 
-const FILE = path.join(process.cwd(), 'database', 'database.json')
+import { DATABASE_FILE } from '../../lib/paths.js'
+
+const FILE = DATABASE_FILE
 
 export default {
   command: ['db', 'database', 'datos'],

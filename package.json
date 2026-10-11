@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "panel": "node index.js --panel",
     "qr": "node index.js --qr",
     "code": "node index.js --code",
     "pm2": "pm2 start ecosystem.config.cjs",
@@ -29,6 +30,7 @@
     "node-cache": "^5.1.2",
     "node-webpmux": "^3.2.1",
     "pino": "^9.4.0",
+    "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0"
   },
   "engines": {

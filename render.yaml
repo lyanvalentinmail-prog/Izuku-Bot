@@ -1,0 +1,50 @@
+# ===============================================
+#  DESPLIEGUE EN RENDER.COM (un clic)
+#
+#  Cómo usarlo:
+#   1. Entra a https://dashboard.render.com/blueprints
+#   2. New Blueprint Instance -> elige este repositorio
+#   3. Render te pedirá la clave del panel (PANEL_PASSWORD): escribe la tuya
+#   4. Cuando termine, abre la URL del servicio y entra con esa clave
+#
+#  El bot arranca solo y espera a que lo vincules desde el panel
+#  (QR o código de 8 dígitos). No hace falta consola.
+#
+#  ⚠️ IMPORTANTE (disco persistente)
+#  En el plan free de Render el disco NO está disponible y la sesión de
+#  WhatsApp se pierde cada vez que se redespliega (hay que re-vincular).
+#  En un plan de pago: agrega un disco con Mount Path "/var/data" y
+#  descomenta la sección "disk" de abajo (o pon DATA_DIR=/var/data
+#  en las variables de entorno). Así la sesión queda guardada para siempre.
+# ===============================================
+
+services:
+  - type: web
+    name: izuku-bot
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20.18.0"
+      # Clave para entrar al panel web. Render te la pedirá al crear el servicio.
+      - key: PANEL_PASSWORD
+        sync: false
+      # Deja el panel encendido (es la única forma de vincular en un servidor)
+      - key: PANEL_ENABLED
+        value: "true"
+      - key: TZ
+        value: America/Montevideo
+      # Guarda la sesión en el disco persistente (plan de pago + sección "disk")
+      # - key: DATA_DIR
+      #   value: /var/data
+
+    # ---- Disco persistente (solo planes de pago) ----
+    # disk:
+    #   name: izuku-datos
+    #   mountPath: /var/data
+    #   sizeGB: 1

@@ -4,7 +4,8 @@
 
 **Bot de WhatsApp multifunción hecho con Node.js + [Baileys](https://github.com/WhiskeySockets/Baileys)**
 
-Vinculación por **código QR** y por **código de 8 dígitos (pairing code)**
+Vinculación por **código QR** y por **código de 8 dígitos (pairing code)**,
+**panel web** para manejarlo todo desde el navegador y despliegue fácil en **Render**.
 Sistema de **plugins**, **sub-bots**, **economía**, **IA**, **descargas** y mucho más.
 
 </div>
@@ -18,16 +19,19 @@ Sistema de **plugins**, **sub-bots**, **economía**, **IA**, **descargas** y muc
 3. [Requisitos](#-requisitos)
 4. [Instalación en Termux (paso a paso)](#-instalación-en-termux-paso-a-paso)
 5. [Vincular el bot (QR o código de 8 dígitos)](#-vincular-el-bot)
-6. [Mantener el bot encendido](#-mantener-el-bot-encendido)
-7. [Lista de comandos por categoría](#-lista-de-comandos)
-8. [Configuración: cómo cambiar cosas](#️-configuración-cómo-cambiar-cosas)
-9. [Cómo agregar un comando nuevo](#-cómo-agregar-un-comando-nuevo)
-10. [Cómo funcionan los sub-bots](#-cómo-funcionan-los-sub-bots)
-11. [Comandos del dueño](#-comandos-del-dueño)
-12. [Administrar y reiniciar datos](#️-administrar-y-reiniciar-datos)
-13. [Hosting: hacerlo más rápido](#-hosting-hacerlo-más-rápido-y-con-más-espacio)
-14. [Estructura del proyecto](#-estructura-del-proyecto)
-15. [Solución de problemas](#-solución-de-problemas)
+6. [🌐 Panel web: vincular, cambiar el nombre, el banner y más](#-panel-web)
+7. [☁️ Desplegar en Render](#️-desplegar-en-render)
+8. [Mantener el bot encendido](#-mantener-el-bot-encendido)
+9. [Lista de comandos por categoría](#-lista-de-comandos)
+10. [Configuración: cómo cambiar cosas](#️-configuración-cómo-cambiar-cosas)
+11. [Cómo agregar un comando nuevo](#-cómo-agregar-un-comando-nuevo)
+12. [Cómo funcionan los sub-bots](#-cómo-funcionan-los-sub-bots)
+13. [Comandos del dueño](#-comandos-del-dueño)
+14. [Administrar y reiniciar datos](#️-administrar-y-reiniciar-datos)
+15. [Hosting: hacerlo más rápido](#-hosting-hacerlo-más-rápido-y-con-más-espacio)
+16. [Variables de entorno](#-variables-de-entorno)
+17. [Estructura del proyecto](#-estructura-del-proyecto)
+18. [Solución de problemas](#-solución-de-problemas)
 
 ---
 
@@ -63,7 +67,9 @@ WhatsApp  ──▶  index.js (conexión Baileys)
 
 | | |
 |---|---|
-| 🔗 **Doble vinculación** | Código QR **y** código de 8 dígitos |
+| 🔗 **Doble vinculación** | Código QR **y** código de 8 dígitos (los dos reales, nunca inventados) |
+| 🌐 **Panel web** | Vincula el bot, cambia nombre/prefijo/banner, mira los 174 comandos, sub-bots, consola en vivo y estadísticas desde el navegador |
+| ☁️ **Render / Docker listos** | `render.yaml` incluido, escucha en `PORT`, `healthCheckPath` y sesión en disco persistente |
 | 🧩 **Sistema de plugins** | Un archivo por comando, con *recarga en caliente* (no hay que reiniciar) |
 | 🤖 **Sub-bots (JadiBot)** | Otras personas pueden volverse bots usando tu código |
 | 💾 **Base de datos JSON** | Sin instalar MySQL ni MongoDB, se guarda sola cada 30 s |
@@ -181,7 +187,14 @@ npm start
 
 ## 🔗 Vincular el bot
 
-Al arrancar por primera vez, el bot te pregunta:
+Hay **tres formas**: desde el panel web (lo más fácil, sobre todo en servidores),
+o desde la consola con QR o con código de 8 dígitos.
+
+> 🧭 **En un servidor (Render, Docker, pm2) usa el panel web.** No tiene consola,
+> así que el bot arranca y espera ahí a que lo vincules.
+> Salta a la sección [🌐 Panel web](#-panel-web).
+
+Al arrancar por primera vez en tu propia terminal, el bot te pregunta:
 
 ```
 ¿Cómo quieres vincular tu WhatsApp?
@@ -228,6 +241,140 @@ node index.js --code 5212345678901
 
 > La sesión queda guardada en la carpeta `sessions/`. La próxima vez solo ejecuta `npm start`
 > y entrará solo. Si quieres cambiar de número, borra esa carpeta: `rm -rf sessions`.
+
+---
+
+## 🌐 Panel web
+
+El bot trae un **panel web** para manejarlo todo desde el navegador, sin tocar la consola.
+Es la forma más cómoda de vincular el bot en un servidor (Render, Docker, VPS) y de
+cambiar el nombre, el prefijo, el banner, etc. **sin reiniciar nada**.
+
+```bash
+npm start              # enciende el bot + el panel
+npm run panel          # enciende solamente el panel (lo vinculas desde el navegador)
+PANEL_PORT=8080 npm start   # cambiar el puerto (por defecto 3000)
+```
+
+Luego abre en tu navegador:
+
+```
+http://localhost:3000
+```
+
+### 🔐 La clave del panel
+
+El panel **no queda abierto para cualquiera**: pide una clave.
+
+* Si pones la variable `PANEL_PASSWORD`, esa es la clave.
+* Si no la pones, el bot genera una sola vez y te la muestra en los logs:
+
+```
+🌐 Panel web escuchando en 0.0.0.0:3000
+🔗 Abre tu panel: https://tu-servicio.onrender.com/?k=3fK9pQ2xLmZ1
+🔐 Clave del panel (generada): 3fK9pQ2xLmZ1
+```
+
+Al abrir ese enlace (**`?k=...`**) el navegador guarda la clave y no la vuelves a escribir.
+La clave queda guardada en `database/panel.key`.
+
+### 🗂️ Qué puedes hacer en cada pestaña
+
+| Pestaña | Para qué sirve |
+|---|---|
+| 🔗 **Vincular** | Ver el estado en vivo, **escanear el QR**, **pedir el código de 8 dígitos**, reiniciar la conexión, cerrar la sesión de WhatsApp o borrar la sesión guardada |
+| ⚙️ **Ajustes** | Nombre del bot, tu nombre, número(s) del dueño, **prefijos**, **banner del menú** (subiendo la foto o con una URL), canal, modo self, solo grupos, marcar como leído, rechazar llamadas, máximo de sub-bots, economía y API keys de IA |
+| ⌨️ **Comandos** | Ver **los 174 comandos** con su categoría y descripción, buscarlos, y **probarlos** (el bot responde en tu propio chat de WhatsApp) |
+| 🤖 **Sub-bots** | Convertir otros números en bots, vincularlos por **QR** o **código** y detenerlos |
+| 📊 **Sistema** | Estadísticas, **consola en vivo**, mensaje masivo a tus grupos o a los usuarios del bot, guardar/compactar la base de datos |
+
+### 📷 El QR y el código son siempre los de verdad
+
+* El **QR** que ves en el panel es exactamente el que envía WhatsApp: si expira, el panel
+  lo avisa y muestra el siguiente (WhatsApp los renueva solo cada pocos segundos).
+* El **código de 8 dígitos** se lo pide el bot a WhatsApp y el panel muestra el que devuelve
+  WhatsApp. **Si algo falla, el panel muestra el error real** (por ejemplo si se corta la
+  conexión) y **nunca un código inventado**.
+* Cada vez que pides «Pedir otro código», el anterior deja de funcionar: eso también lo
+  hace WhatsApp, y el panel te lo advierte.
+
+### ✏️ Cambiar el nombre, el prefijo, el banner…
+
+Todo lo que hagas en **⚙️ Ajustes** se aplica **al instante** en los 174 comandos (el bot
+modifica la misma configuración que usan los plugins) y queda guardado en
+`database/database.json`. Los valores originales siguen estando en `config.js`, y el botón
+**Restaurar config.js** vuelve todo a como estaba.
+
+Desde el propio WhatsApp también funciona (comandos de dueño):
+
+```
+.setprefix !          → cambia el prefijo
+.setbanner (responde a una foto)  → cambia la imagen del menú
+```
+
+> 💡 Si el banner lo subes desde el panel se guarda en `media/banner.jpg`, igual que con
+> `.setbanner`. Si el campo del banner está vacío, el menú se envía solo con texto.
+
+---
+
+## ☁️ Desplegar en Render
+
+Sí, se puede: el bot levanta el panel web en el puerto que Render le da (`PORT`) y
+**todo se hace desde el navegador** (vincular con QR o con código, ajustes, comandos).
+
+### Opción A — Blueprint (2 minutos)
+
+1. Entra a **[dashboard.render.com/blueprints](https://dashboard.render.com/blueprints)** → **New Blueprint Instance**.
+2. Elige este repositorio. Render leerá **`render.yaml`** (ya viene en el proyecto).
+3. Te pedirá la variable **`PANEL_PASSWORD`**: escribe la clave que quieras para el panel.
+4. **Apply** y espera el primer despliegue.
+5. Abre la URL del servicio (`https://tu-servicio.onrender.com`), escribe la clave y vincula
+   el bot con **QR** o con **código de 8 dígitos**.
+
+### Opción B — Manual (New Web Service)
+
+| Ajuste | Valor |
+|---|---|
+| **Environment / Runtime** | `Node` |
+| **Build Command** | `npm install` |
+| **Start Command** | `npm start` |
+| **Health Check Path** | `/healthz` |
+| **Node Version** | `20` (variable `NODE_VERSION` = `20.18.0`) |
+
+Variables de entorno mínimas:
+
+| Variable | Valor | Para qué |
+|---|---|---|
+| `PANEL_PASSWORD` | tu clave secreta | entrar al panel |
+| `PANEL_ENABLED` | `true` | encender el panel (por defecto ya está encendido) |
+| `TZ` | `America/Montevideo` | hora de los mensajes |
+| `DATA_DIR` | `/var/data` | guardar la sesión en el disco persistente |
+| `OPENAI_API_KEY` / `GEMINI_API_KEY` | opcional | IA con tus propias claves |
+
+### 💾 Que no se pierda la sesión (importante)
+
+WhatsApp guarda la sesión en `sessions/`. En un contenedor, esa carpeta se borra en cada
+despliegue, así que **hace falta un disco persistente**:
+
+1. En Render: **Dashboard ▸ tu servicio ▸ Disks ▸ Add Disk** → *Mount Path* `/var/data`, 1 GB.
+2. Agrega la variable **`DATA_DIR` = `/var/data`** y vuelve a desplegar.
+
+Con eso la sesión, los sub-bots y la base de datos viven fuera del contenedor y **actualizar
+el bot no te obliga a vincularlo otra vez**. (Si no tienes disco, al redesplegar solo tienes
+que volver a escanear el QR: 20 segundos.)
+
+> ⚠️ **El plan free de Render duerme el servicio** a los ~15 minutos sin visitas: el bot se
+> queda sin conexión y despierta cuando alguien entra a la URL o le llega una petición.
+> Para tenerlo **24/7** usa un plan pago (Starter) o un VPS, que además es más barato.
+> El panel también sirve como «despertador»: abrir la URL lo levanta.
+
+### 🔍 Si algo falla
+
+* Mira los **logs** del servicio en Render: ahí aparece la clave del panel, la URL con `?k=`
+  y cada reconexión.
+* Comprueba que el servicio responde: `https://tu-servicio.onrender.com/healthz` → `{"ok":true}`.
+* Si ves `Clave incorrecta` al entrar, usa el enlace con `?k=` que sale en los logs o
+  define `PANEL_PASSWORD`.
 
 ---
 
@@ -552,6 +699,10 @@ Escribe `.menu` para verlos todos, o `.menu juegos` para filtrar por categoría.
 
 ## ⚙️ Configuración: cómo cambiar cosas
 
+> 💡 **Lo más rápido:** abre el **panel web** y hazlo ahí (pestaña ⚙️ Ajustes). Se aplica al
+> instante y queda guardado. Lo de abajo sirve si prefieres editar archivos a mano: sigue
+> funcionando igual y `config.js` es la fuente de los valores por defecto.
+
 Todo lo que se personaliza está en **`config.js`**. Ábrelo con `nano config.js`.
 
 ### Cambiar el nombre del bot
@@ -850,7 +1001,11 @@ Todos los sub-bots comparten los plugins y la base de datos del bot principal.
 4. Su sesión se guarda en `subbots/<número>/` y **se reconecta sola** cada vez que enciendes el bot.
 5. Para desconectarse: `.stopbot` (borra su sesión).
 
-Ajusta el límite en `config.js` con `maxSubBots`.
+Desde el **panel web** (pestaña 🤖 Sub-bots) también puedes crearlos y verlos: escribes el
+número, eliges QR o código, y el panel te va mostrando el QR o el código real de cada uno
+con su tiempo restante. Nada de códigos falsos.
+
+Ajusta el límite en `config.js` con `maxSubBots` (o desde el panel).
 
 > ⚠️ Cada sub-bot consume RAM. En un celular de gama media no pases de ~5 sub-bots.
 
@@ -948,11 +1103,15 @@ siempre deja una copia previa en `database.json.antes-del-reset`.
 | 📱 **Termux** | Media | La del móvil | Gratis | Probar y uso personal |
 | 🖥️ **VPS** (Contabo, Hetzner, Oracle Free) | **Alta** | 50-200 GB | 0-5 €/mes | **Lo recomendado** |
 | 🐳 **Docker** en VPS | Alta | Según VPS | — | Si quieres despliegues limpios |
-| ☁️ Railway / Render / Fly.io | Media | Poca y efímera | Gratis limitado | Pruebas (ojo: borran la sesión al redesplegar) |
+| ☁️ **Render** | Media | Con disco: persistente | Gratis (se duerme) o pago | **Fácil, todo desde el panel web** |
+| ☁️ Railway / Fly.io | Media | Poca y efímera | Gratis limitado | Pruebas |
 
-> ⚠️ Evita los hosts gratuitos tipo Heroku/Render para producción: reinician el
-> contenedor y **pierdes la sesión de WhatsApp**, teniendo que re-vincular.
+> ⚠️ En los planes gratuitos el contenedor se **duerme** o se reinicia: el bot se queda sin
+> conexión (la sesión sigue guardada si tienes disco) y despierta al recibir una visita.
+> Si quieres un bot **24/7 de verdad**, usa un VPS con pm2 o un plan pago.
 > Oracle Cloud tiene una capa gratuita de verdad (4 vCPU / 24 GB RAM ARM) perfecta para esto.
+>
+> En **Render** lo tienes explicado paso a paso en [☁️ Desplegar en Render](#️-desplegar-en-render).
 
 ### Montarlo en un VPS con pm2 (recomendado)
 
@@ -1007,6 +1166,34 @@ NODE_OPTIONS=--max-old-space-size=1024 npm start
 
 ---
 
+## 🔧 Variables de entorno
+
+Todas son **opcionales**: el bot funciona sin configurar nada. Están pensadas para
+servidores (Render, Docker, Railway, VPS).
+
+| Variable | Para qué | Ejemplo |
+|---|---|---|
+| `PANEL_ENABLED` | Encender/apagar el panel web | `true` |
+| `PANEL_PASSWORD` | Clave para entrar al panel | `mi-clave-secreta` |
+| `PORT` / `PANEL_PORT` | Puerto del panel (Render lo pone solo en `PORT`) | `3000` |
+| `DATA_DIR` | Carpeta base de datos persistentes | `/var/data` |
+| `SESSION_DIR` | Solo la sesión del bot principal | `/var/data/sessions` |
+| `SUBBOTS_DIR` | Solo las sesiones de los sub-bots | `/var/data/subbots` |
+| `DATABASE_DIR` | Solo `database.json` y `panel.key` | `/var/data/database` |
+| `TMP_DIR` | Solo los temporales | `/var/data/tmp` |
+| `TZ` | Zona horaria | `America/Montevideo` |
+| `TERMINAL_QR` | Poner `false` para no imprimir el QR en el log del servidor | `false` |
+| `OPENAI_API_KEY` / `GEMINI_API_KEY` | IA con tus propias claves | `sk-...` |
+| `NODE_OPTIONS` | Memoria de Node | `--max-old-space-size=512` |
+
+Ejemplo rápido:
+
+```bash
+PANEL_PASSWORD=mi-clave PORT=8080 DATA_DIR=/var/data npm start
+```
+
+---
+
 ## 📂 Estructura del proyecto
 
 ```
@@ -1015,10 +1202,19 @@ Izuku-Bot/
 ├── handler.js            # Procesa cada mensaje: prefijo, permisos, antilink, XP
 ├── config.js             # ⚙️ TODA la configuración editable
 ├── start.sh              # Arranque con reinicio automático
+├── render.yaml           # ☁️ Blueprint de Render (despliegue en 1 clic)
+├── panel/                # 🌐 Panel web (HTML + CSS + JS, sin frameworks)
+│   ├── index.html        # Estructura de las 5 pestañas
+│   ├── style.css         # Estilos
+│   └── app.js            # Se conecta a /api/... y se actualiza en vivo
 ├── lib/
 │   ├── loader.js         # Carga y recarga los plugins
 │   ├── serialize.js      # Convierte los mensajes de Baileys en algo cómodo
 │   ├── database.js       # Base de datos JSON (usuarios, chats)
+│   ├── panel.js          # 🌐 Servidor del panel (HTTP + API + clave de acceso)
+│   ├── session.js        # Estado de la conexión: QR, código, logs en vivo
+│   ├── config.js         # Ajustes que edita el panel (se aplican en caliente)
+│   ├── paths.js          # 📁 Dónde se guarda todo (para discos persistentes)
 │   ├── functions.js      # Utilidades: stickers, descargas, formatos
 │   ├── downloader.js     # APIs de descarga (YouTube, TikTok…) ← edítalo si una falla
 │   ├── ai.js             # Conexión con los modelos de IA
@@ -1051,7 +1247,11 @@ Izuku-Bot/
 | `npm error Missing script: "start"` | No estás dentro de la carpeta del bot o la rama no tiene el código. Haz `cd Izuku-Bot && ls`: debes ver `package.json`. Si no aparece, mira la nota de abajo 👇 |
 | `npm install` falla en Termux | `pkg install -y python make clang` y vuelve a intentar |
 | `ffmpeg: not found` / stickers no funcionan | `pkg install -y ffmpeg libwebp` |
-| El QR no se ve bien | Pellizca la pantalla para reducir la letra, o usa `npm run code` |
+| El QR no se ve bien | Pellizca la pantalla para reducir la letra, usa el panel web o `npm run code` |
+| No sé la clave del panel | Está en los logs (`🔐 Clave del panel`) o en `database/panel.key`. También puedes definir `PANEL_PASSWORD` |
+| En Render no veo dónde escanear el QR | Abre la URL del servicio: el panel te lo muestra. Revisa también `/healthz` |
+| Al redesplegar en Render tengo que vincular otra vez | Agrega un disco y `DATA_DIR=/var/data` (ver [Desplegar en Render](#️-desplegar-en-render)) |
+| El panel dice «Falta la librería qrcode» | Ejecuta `npm install` (la dependencia viene en `package.json`) |
 | El código de 8 dígitos no llega | Asegúrate de poner el número **con código de país y sin `+`** |
 | `Connection closed` en bucle | Borra la sesión: `rm -rf sessions` y vuelve a vincular |
 | El bot no responde | Revisa el **prefijo** en `config.js` y que `self` esté en `false` |
