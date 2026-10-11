@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Izuku Bot · Panel</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Pantalla de acceso -->
+  <section id="login" class="screen hidden">
+    <form id="login-form" class="card login-card">
+      <div class="brand big">IZUKU<span>BOT</span></div>
+      <p class="muted">Panel de control</p>
+      <label for="password">Contraseña del panel</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <p id="login-msg" class="msg"></p>
+      <button type="submit" class="btn primary block">Entrar</button>
+      <p class="hint">La contraseña es la variable <code>PANEL_PASSWORD</code> de tu servidor.</p>
+    </form>
+  </section>
+
+  <!-- Panel principal -->
+  <section id="app" class="screen hidden">
+    <header class="topbar">
+      <div class="brand">IZUKU<span>BOT</span> <small id="bot-name"></small></div>
+      <div class="top-right">
+        <span id="conn-pill" class="pill">…</span>
+        <button id="logout" class="btn ghost small">Salir</button>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="vincular" role="tab">Vincular</button>
+      <button class="tab" data-tab="ajustes" role="tab">Ajustes</button>
+      <button class="tab" data-tab="banner" role="tab">Banner</button>
+      <button class="tab" data-tab="comandos" role="tab">Comandos</button>
+    </nav>
+
+    <main>
+      <!-- Vincular -->
+      <div id="tab-vincular" class="view">
+        <div class="grid two">
+          <div class="card">
+            <h2>Cuenta de WhatsApp</h2>
+            <div id="link-box"></div>
+            <p id="link-msg" class="msg"></p>
+          </div>
+          <div class="card">
+            <h2>Resumen</h2>
+            <dl class="stats" id="stats"></dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ajustes -->
+      <div id="tab-ajustes" class="view hidden">
+        <form id="settings-form" class="card">
+          <div class="form-head">
+            <h2>Ajustes del bot</h2>
+            <button type="submit" class="btn primary">Guardar cambios</button>
+          </div>
+          <p class="muted">Los cambios se aplican al momento y se guardan para los próximos reinicios.</p>
+          <div id="settings-fields" class="grid two"></div>
+          <p id="settings-msg" class="msg"></p>
+        </form>
+      </div>
+
+      <!-- Banner -->
+      <div id="tab-banner" class="view hidden">
+        <div class="grid two">
+          <div class="card">
+            <h2>Banner del menú</h2>
+            <div class="banner-preview" id="banner-preview"></div>
+            <p class="muted" id="banner-info"></p>
+          </div>
+          <div class="card">
+            <h2>Cambiar banner</h2>
+            <p class="muted">Sube una imagen JPG o PNG de hasta 8 MB. Se usará en <code id="banner-cmd"></code>.</p>
+            <input id="banner-file" type="file" accept="image/jpeg,image/png" class="file">
+            <div class="row gap">
+              <button id="banner-upload" class="btn primary" disabled>Subir banner</button>
+              <button id="banner-remove" class="btn danger">Quitar banner</button>
+            </div>
+            <p id="banner-msg" class="msg"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comandos -->
+      <div id="tab-comandos" class="view hidden">
+        <div class="card">
+          <div class="form-head">
+            <h2>Comandos <small id="cmd-count" class="muted"></small></h2>
+            <button id="cmd-reload" class="btn ghost small">Recargar plugins</button>
+          </div>
+          <div class="row gap wrap">
+            <input id="cmd-search" type="search" placeholder="Buscar comando o descripción…">
+            <select id="cmd-category"></select>
+          </div>
+          <div id="cmd-list" class="cmd-list"></div>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+  </section>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

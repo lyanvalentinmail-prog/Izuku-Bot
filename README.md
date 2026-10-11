@@ -17,17 +17,19 @@ Sistema de **plugins**, **sub-bots**, **economía**, **IA**, **descargas** y muc
 2. [Características](#-características)
 3. [Requisitos](#-requisitos)
 4. [Instalación en Termux (paso a paso)](#-instalación-en-termux-paso-a-paso)
-5. [Vincular el bot (QR o código de 8 dígitos)](#-vincular-el-bot)
-6. [Mantener el bot encendido](#-mantener-el-bot-encendido)
-7. [Lista de comandos por categoría](#-lista-de-comandos)
-8. [Configuración: cómo cambiar cosas](#️-configuración-cómo-cambiar-cosas)
-9. [Cómo agregar un comando nuevo](#-cómo-agregar-un-comando-nuevo)
-10. [Cómo funcionan los sub-bots](#-cómo-funcionan-los-sub-bots)
-11. [Comandos del dueño](#-comandos-del-dueño)
-12. [Administrar y reiniciar datos](#️-administrar-y-reiniciar-datos)
-13. [Hosting: hacerlo más rápido](#-hosting-hacerlo-más-rápido-y-con-más-espacio)
-14. [Estructura del proyecto](#-estructura-del-proyecto)
-15. [Solución de problemas](#-solución-de-problemas)
+5. [Panel de control (nombre, banner, prefijo, comandos…)](#️-panel-de-control)
+6. [Vincular el bot (QR o código de 8 dígitos)](#-vincular-el-bot)
+7. [Mantener el bot encendido](#-mantener-el-bot-encendido)
+8. [Lista de comandos por categoría](#-lista-de-comandos)
+9. [Configuración: cómo cambiar cosas](#️-configuración-cómo-cambiar-cosas)
+10. [Cómo agregar un comando nuevo](#-cómo-agregar-un-comando-nuevo)
+11. [Cómo funcionan los sub-bots](#-cómo-funcionan-los-sub-bots)
+12. [Comandos del dueño](#-comandos-del-dueño)
+13. [Administrar y reiniciar datos](#️-administrar-y-reiniciar-datos)
+14. [Hosting: hacerlo más rápido y con más espacio](#-hosting-hacerlo-más-rápido-y-con-más-espacio)
+15. [Desplegar en Render (Blueprint)](#️-desplegar-en-render-blueprint)
+16. [Estructura del proyecto](#-estructura-del-proyecto)
+17. [Solución de problemas](#-solución-de-problemas)
 
 ---
 
@@ -179,9 +181,36 @@ npm start
 
 ---
 
+## 🖥️ Panel de control
+
+El bot trae un panel web para configurarlo sin tocar archivos. Se abre en
+`http://localhost:3000` (o en la URL de tu servidor) y pide la contraseña que
+definiste en `PANEL_PASSWORD`.
+
+| Pestaña | Qué puedes hacer |
+|---|---|
+| **Vincular** | Vincular la cuenta de WhatsApp por **QR** o por **código de 8 dígitos**, ver el estado, cancelar o desvincular. |
+| **Ajustes** | Nombre del bot, nombre y números del dueño, prefijos, enlace del canal, modos (privado, solo grupos, leer, rechazar llamadas), máximo de sub-bots y economía. |
+| **Banner** | Ver, cambiar (JPG/PNG, máx. 8 MB) o quitar la imagen del menú. |
+| **Comandos** | Ver todos los comandos con su descripción, categoría y restricciones, buscarlos y recargar los plugins. |
+
+Los cambios de **Ajustes** se aplican al momento y se guardan en `database/settings.json`.
+Tienen prioridad sobre `config.js`, así que si cambias algo desde el panel no hace falta
+editar el archivo (ni hacer redeploy).
+
+> 🔐 El panel solo funciona si defines `PANEL_PASSWORD`. Sin esa variable nadie puede entrar.
+> Tras 5 contraseñas incorrectas seguidas, el acceso se bloquea 1 minuto.
+
+---
+
 ## 🔗 Vincular el bot
 
-Al arrancar por primera vez, el bot te pregunta:
+Puedes vincular desde el **panel** (pestaña *Vincular*) o desde la **consola**.
+En ambos casos el código o el QR solo aparecen cuando WhatsApp confirma la solicitud:
+si WhatsApp la rechaza (por ejemplo, un número que no tiene WhatsApp), verás el motivo
+y **no se mostrará ningún código**.
+
+Al arrancar desde la consola por primera vez, el bot te pregunta:
 
 ```
 ¿Cómo quieres vincular tu WhatsApp?
@@ -228,6 +257,28 @@ node index.js --code 5212345678901
 
 > La sesión queda guardada en la carpeta `sessions/`. La próxima vez solo ejecuta `npm start`
 > y entrará solo. Si quieres cambiar de número, borra esa carpeta: `rm -rf sessions`.
+
+---
+
+## ☁️ Desplegar en Render (Blueprint)
+
+El repositorio incluye `render.yaml`, así que se despliega con un solo clic.
+
+1. Haz fork (o sube) este repositorio a tu cuenta de GitHub.
+2. En Render: **New ▸ Blueprint** y elige el repositorio.
+3. Render lee `render.yaml` y crea el servicio **izuku-bot** con Docker, un disco persistente de 5 GB en `/data` y una contraseña para el panel generada automáticamente.
+4. Cuando termine el primer deploy, copia la contraseña en **izuku-bot ▸ Environment ▸ `PANEL_PASSWORD`**.
+5. Abre la URL del servicio (`https://izuku-bot-xxxx.onrender.com`), entra con esa contraseña y vincula tu WhatsApp en la pestaña **Vincular**.
+
+> 💡 La sesión, la base de datos, los sub-bots y el banner se guardan en el disco `/data`,
+> así que sobreviven a los redeploys. Si quieres usar tus API keys de IA, rellena
+> `OPENAI_API_KEY` o `GEMINI_API_KEY` en Environment.
+
+> ⚠️ Los discos persistentes de Render requieren el plan **Starter** (de pago). En `render.yaml`
+> está configurado así. Si cambias a un plan gratuito, el disco no se crea y la sesión se pierde
+> en cada deploy.
+
+> ⚠️ El servicio tiene que ser de **una sola instancia** (los discos no admiten varias).
 
 ---
 
@@ -984,6 +1035,7 @@ se reinicia si pasa de 600 MB de RAM y guarda los logs en `logs/`.
 docker compose up -d --build     # construir y arrancar
 docker compose logs -f           # ver la consola (y el QR)
 docker attach izuku-bot          # para escribir el código de vinculación
+# Panel de control: http://localhost:3000  (define PANEL_PASSWORD en tu entorno o .env)
 docker compose restart           # reiniciar
 ```
 
@@ -1011,11 +1063,19 @@ NODE_OPTIONS=--max-old-space-size=1024 npm start
 
 ```
 Izuku-Bot/
-├── index.js              # Conexión con WhatsApp (QR / código), eventos, bienvenidas
+├── index.js              # Arranque: ajustes, plugins, panel y vinculación
 ├── handler.js            # Procesa cada mensaje: prefijo, permisos, antilink, XP
-├── config.js             # ⚙️ TODA la configuración editable
+├── config.js             # ⚙️ Configuración base (el panel la sobrescribe, ver database/settings.json)
 ├── start.sh              # Arranque con reinicio automático
+├── render.yaml           # Blueprint para desplegar en Render
+├── docker-entrypoint.sh  # Enlaza las carpetas de datos al disco (si defines DATA_DIR)
+├── panel/
+│   ├── server.js         # Servidor del panel (login, API, banner)
+│   └── public/           # Interfaz del panel (HTML, CSS y JS sin dependencias)
 ├── lib/
+│   ├── connection.js     # Vinculación por QR / código, reconexión, desvinculación
+│   ├── pairing.js        # Pide el código de 8 dígitos solo cuando WhatsApp lo confirma
+│   ├── settings.js       # Ajustes editables del panel (validación y guardado)
 │   ├── loader.js         # Carga y recarga los plugins
 │   ├── serialize.js      # Convierte los mensajes de Baileys en algo cómodo
 │   ├── database.js       # Base de datos JSON (usuarios, chats)

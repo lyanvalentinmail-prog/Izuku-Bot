@@ -1,0 +1,34 @@
+# ===============================================
+#  IZUKU BOT - Blueprint de Render
+#  Despliegue: Render > New > Blueprint > elige este repositorio.
+#  Guia completa en el README (seccion "Desplegar en Render").
+# ===============================================
+services:
+  - type: web
+    name: izuku-bot
+    runtime: docker
+    # Los discos persistentes solo estan disponibles desde el plan Starter
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # El panel responde aqui; Render lo usa para saber si el servicio esta vivo
+    healthCheckPath: /healthz
+    envVars:
+      # Carpeta del disco persistente (ver "disk" abajo)
+      - key: DATA_DIR
+        value: /data
+      - key: TZ
+        value: America/Montevideo
+      # Contraseña del panel: Render la genera sola. La ves en Environment > PANEL_PASSWORD
+      - key: PANEL_PASSWORD
+        generateValue: true
+      # Opcionales: API keys para los comandos de IA / busqueda
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+    disk:
+      name: izuku-data
+      mountPath: /data
+      sizeGB: 5

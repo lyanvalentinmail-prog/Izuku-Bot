@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import config from '../../config.js'
 import { formatSize } from '../../lib/functions.js'
+import { updateSettings } from '../../lib/settings.js'
 
 export default {
   command: ['setbanner', 'setmenu', 'banner'],
@@ -30,7 +31,7 @@ ${actual}`)
     const destino = path.join(process.cwd(), 'media', 'banner.jpg')
     fs.mkdirSync(path.dirname(destino), { recursive: true })
     fs.writeFileSync(destino, buffer)
-    config.menuImage = './media/banner.jpg'
+    updateSettings({ menuImage: './media/banner.jpg' })
 
     await sock.sendMessage(m.chat, {
       image: buffer,
@@ -42,8 +43,7 @@ ${actual}`)
 
 Prueba ahora con *${usedPrefix}menu* 🎉
 
-_Si en config.js tenías una URL, se cambió a la imagen local. Para dejarlo permanente asegúrate de que diga:_
-\`menuImage: './media/banner.jpg'\``
+_Quedó guardado: el menú usará esta imagen aunque reinicies el bot._`
     }, { quoted: m })
     await m.react('✅')
   }

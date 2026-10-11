@@ -8,3 +8,4 @@ database/database.json
 logs/
 *.tmp
 database/*.antes-*
+database/settings.json

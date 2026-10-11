@@ -5,8 +5,11 @@ services:
     restart: unless-stopped
     stdin_open: true      # necesario para escribir el numero del pairing code
     tty: true
+    ports:
+      - "3000:3000"       # panel de control: http://localhost:3000
     environment:
       - TZ=America/Montevideo
+      - PANEL_PASSWORD=${PANEL_PASSWORD:-}
     volumes:
       - ./sessions:/app/sessions
       - ./subbots:/app/subbots

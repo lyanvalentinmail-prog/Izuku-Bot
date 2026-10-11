@@ -5,3 +5,5 @@ tmp
 logs
 .git
 *.log
+database/*.json
+media/banner.*
