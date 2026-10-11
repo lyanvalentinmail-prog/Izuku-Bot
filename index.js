@@ -18,6 +18,7 @@ import config from './config.js'
 import handler from './handler.js'
 import db from './lib/database.js'
 import { loadPlugins, watchPlugins, plugins } from './lib/loader.js'
+import { restoreRepos } from './lib/repos.js'
 import { groupCache } from './lib/cache.js'
 import { addHelpers } from './lib/helpers.js'
 import { applySavedSettings } from './lib/config.js'
@@ -592,6 +593,7 @@ async function difundir({ text, target = 'groups' }) {
 ensureDirs()
 applySavedSettings()
 await loadPlugins()
+await restoreRepos().catch((e) => log(`No se pudieron restaurar los bots por repositorio: ${e.message}`, 'warn'))
 watchPlugins()
 
 banner()

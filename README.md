@@ -68,7 +68,8 @@ WhatsApp  ──▶  index.js (conexión Baileys)
 | | |
 |---|---|
 | 🔗 **Doble vinculación** | Código QR **y** código de 8 dígitos (los dos reales, nunca inventados) |
-| 🌐 **Panel web** | Vincula el bot, cambia nombre/prefijo/banner, mira los 174 comandos, sub-bots, consola en vivo y estadísticas desde el navegador |
+| 🌐 **Panel web** | Vincula el bot, cambia nombre/prefijo/banner, mira los 174 comandos, bots por repositorio, sub-bots, consola en vivo y **almacenamiento libre** desde el navegador |
+| 📦 **Bots por repositorio** | Pega el enlace de GitHub de un bot y se clona solo: sus comandos quedan en uso al instante |
 | ☁️ **Render / Docker listos** | `render.yaml` incluido, escucha en `PORT`, `healthCheckPath` y sesión en disco persistente |
 | 🧩 **Sistema de plugins** | Un archivo por comando, con *recarga en caliente* (no hay que reiniciar) |
 | 🤖 **Sub-bots (JadiBot)** | Otras personas pueden volverse bots usando tu código |
@@ -283,10 +284,25 @@ La clave queda guardada en `database/panel.key`.
 | Pestaña | Para qué sirve |
 |---|---|
 | 🔗 **Vincular** | Ver el estado en vivo, **escanear el QR**, **pedir el código de 8 dígitos**, reiniciar la conexión, cerrar la sesión de WhatsApp o borrar la sesión guardada |
-| ⚙️ **Ajustes** | Nombre del bot, tu nombre, número(s) del dueño, **prefijos**, **banner del menú** (subiendo la foto o con una URL), canal, modo self, solo grupos, marcar como leído, rechazar llamadas, máximo de sub-bots, economía y API keys de IA |
+| 🤖 **Bots** | **Usar bots por repositorio** (pegas el enlace de GitHub y se clona solo, con sus comandos) y crear **sub-bots** con otros números por QR o código |
 | ⌨️ **Comandos** | Ver **los 174 comandos** con su categoría y descripción, buscarlos, y **probarlos** (el bot responde en tu propio chat de WhatsApp) |
-| 🤖 **Sub-bots** | Convertir otros números en bots, vincularlos por **QR** o **código** y detenerlos |
-| 📊 **Sistema** | Estadísticas, **consola en vivo**, mensaje masivo a tus grupos o a los usuarios del bot, guardar/compactar la base de datos |
+| ⚙️ **Ajustes** | Nombre del bot, tu nombre, número(s) del dueño, **prefijos**, **banner del menú** (subiendo la foto o con una URL), canal, modo self, solo grupos, marcar como leído, rechazar llamadas, máximo de sub-bots, economía y API keys de IA |
+| 📊 **Sistema** | **Cuánto almacenamiento queda** (con barra de uso), estadísticas, **consola en vivo**, mensaje masivo a tus grupos o a los usuarios del bot, guardar/compactar la base de datos |
+
+### 📦 Bots por repositorio
+
+En la pestaña **Bots** pegas el enlace de un repositorio de GitHub
+(`https://github.com/usuario/bot`, opcionalmente con la rama) y el bot:
+
+1. **Clona** el repositorio en `bots/` (con `git clone --depth 1`).
+2. **Busca sus plugins** (carpetas `plugins/` o `commands/` con archivos que tengan
+   `export default` con `run`).
+3. **Los carga al instante**: esos comandos ya responden en tus chats como si fueran del bot.
+
+Desde la misma tarjeta puedes **recargar** el bot del repo o **quitarlo** (borra sus comandos
+y su carpeta). Lo instalado queda en `database/repos.json` y se restaura solo al arrancar.
+
+> ⚠️ Instalas el código de ese repositorio bajo tu responsabilidad: se ejecuta dentro del bot.
 
 ### 📷 El QR y el código son siempre los de verdad
 
